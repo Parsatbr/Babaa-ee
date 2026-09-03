@@ -1,317 +1,138 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>پیگیری برنامه مطالعاتی دانش‌آموز</title>
 
-    <title>پنل مطالعاتی</title>
+  <!-- فونت فارسی خوانا (Vazirmatn) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-    <!-- فونت جذاب -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- استایل اصلی برنامه -->
+  <link rel="stylesheet" href="YahYah.css" />
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="YahYah.css">
+  <!--
+    «Palang»: کتابخانه‌های خارجی مورد نیاز برای خروجی PDF.
+    این پروژه در حالت عادی فقط به HTML + CSS + JS خالص نیاز دارد،
+    اما برای تولید فایل PDF از گزارش مشاور (با فونت فارسی و ظاهر نئونی سایت)،
+    به دو کتابخانه‌ی جانبی زیر نیاز است که با نام قراردادی «Palang» معرفی می‌شوند:
+      1) html2canvas → عکس گرفتن از گزارش HTML با همان استایل سایت
+      2) jsPDF        → قرار دادن آن تصویر داخل یک فایل PDF چندصفحه‌ای
+    اگر اتصال اینترنت برای بارگذاری این دو اسکریپت وجود نداشته باشد،
+    تمام امکانات دیگر برنامه (ثبت مطالعه، داشبورد، گزارش‌های روی صفحه) همچنان
+    به‌طور کامل و بدون نیاز به بک‌اند کار می‌کنند؛ فقط دکمه «خروجی PDF» غیرفعال می‌ماند.
+  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
-
 <body>
 
-    <!-- افکت پس‌زمینه -->
-    <div class="background">
-        <div class="glow glow-1"></div>
-        <div class="glow glow-2"></div>
-        <div class="grid"></div>
-    </div>
+  <div class="app-shell">
 
-    <!-- هدر -->
-    <header class="topbar">
-
-        <div class="brand">
-            <div class="brand-icon">⚡</div>
-
-            <div>
-                <h1>Study<span>Flow</span></h1>
-                <p>پنل مطالعاتی</p>
-            </div>
-        </div>
-
-        <div class="header-actions">
-            <button class="icon-btn" id="themeBtn" title="تغییر ظاهر">
-                ☀
-            </button>
-        </div>
-
+    <!-- ============================ هدر برنامه ============================ -->
+    <header class="app-header">
+      <h1 class="app-title">پیگیری برنامه مطالعاتی</h1>
+      <p class="app-subtitle">مسیر روزانه‌ات را ثبت کن و پیشرفتت را ببین</p>
     </header>
 
-
-    <!-- محتوای اصلی -->
-    <main class="container">
-
-        <!-- تب‌ها -->
-        <nav class="tabs">
-
-            <button class="tab active" data-page="student">
-                <span>🎓</span>
-                پنل دانش‌آموز
-            </button>
-
-            <button class="tab" data-page="advisor">
-                <span>📊</span>
-                گزارش مشاور
-            </button>
-
-        </nav>
-
-
-        <!-- ================= دانش آموز ================= -->
-
-        <section id="student" class="page active">
-
-            <div class="hero-card">
-
-                <div>
-                    <span class="badge">برنامه مطالعاتی</span>
-
-                    <h2>
-                        برنامه امروزت رو
-                        <span>شروع کن!</span>
-                    </h2>
-
-                    <p>
-                        هر روز رو باز کن، درس‌ها رو بخون و با دکمه‌ی ثبت وضعیتش رو مشخص کن.
-                    </p>
-                </div>
-
-                <div class="hero-icon">
-                    🚀
-                </div>
-
-            </div>
-
-
-            <!-- آمار -->
-            <div class="stats">
-
-                <div class="stat-card">
-                    <div class="stat-icon purple">📚</div>
-                    <div>
-                        <span>کل روزها</span>
-                        <strong id="totalDays">0</strong>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon cyan">✅</div>
-                    <div>
-                        <span>روز کامل شده</span>
-                        <strong id="completedDays">0</strong>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon green">⏱️</div>
-                    <div>
-                        <span>زمان مطالعه</span>
-                        <strong id="totalStudy">0h</strong>
-                    </div>
-                </div>
-
-            </div>
-
-
-            <!-- عنوان -->
-            <div class="section-title">
-
-                <div>
-                    <span class="small-title">PROGRAM</span>
-                    <h3>برنامه روزانه</h3>
-                </div>
-
-                <div class="progress-mini">
-                    <div class="progress-text">
-                        پیشرفت
-                        <b id="progressPercent">0%</b>
-                    </div>
-
-                    <div class="progress">
-                        <div id="progressBar"></div>
-                    </div>
-                </div>
-
-            </div>
-
-
-            <!-- روزها -->
-            <div id="daysContainer" class="days-container"></div>
-
-
-            <!-- پشتیبان‌گیری -->
-            <div class="section-title">
-                <div>
-                    <span class="small-title">BACKUP</span>
-                    <h3>پشتیبان‌گیری</h3>
-                </div>
-            </div>
-
-            <div class="backup-actions">
-                <button class="btn neon" id="backupBtn" type="button">
-                    💾 دریافت فایل پشتیبان
-                </button>
-
-                <label class="btn neon" for="restoreInput">
-                    📂 بازیابی از فایل
-                </label>
-                <input type="file" id="restoreInput" accept="application/json" hidden>
-            </div>
-
-        </section>
-
-
-        <!-- ================= گزارش مشاور ================= -->
-
-        <section id="advisor" class="page">
-
-            <div class="advisor-header">
-
-                <div>
-                    <span class="badge">ADVISOR PANEL</span>
-
-                    <h2>
-                        گزارش
-                        <span>مطالعاتی</span>
-                    </h2>
-
-                    <p>
-                        وضعیت کلی عملکرد دانش‌آموز
-                    </p>
-                </div>
-
-                <div class="advisor-icon">
-                    📈
-                </div>
-
-            </div>
-
-
-            <!-- کارت‌های گزارش -->
-            <div class="report-grid">
-
-                <div class="report-card">
-                    <span>درصد پیشرفت کل</span>
-                    <strong id="advisorProgress">0%</strong>
-
-                    <div class="circle-progress">
-                        <div id="circleValue"></div>
-                    </div>
-                </div>
-
-                <div class="report-card">
-                    <span>روزهای تکمیل شده</span>
-                    <strong id="advisorCompleted">0</strong>
-                    <small>از <b id="advisorTotal">0</b> روز</small>
-                </div>
-
-                <div class="report-card">
-                    <span>زمان مطالعه</span>
-                    <strong id="advisorHours">0 ساعت</strong>
-                    <small>مطالعه‌ی واقعی ثبت شده</small>
-                </div>
-
-                <div class="report-card">
-                    <span>تعداد کل تست</span>
-                    <strong id="advisorTestsTotal">0</strong>
-                    <small>مجموع تست‌های زده شده</small>
-                </div>
-
-            </div>
-
-
-            <!-- گزارش بر اساس درس -->
-            <div class="report-section">
-
-                <div class="section-title">
-                    <div>
-                        <span class="small-title">SUBJECTS</span>
-                        <h3>گزارش بر اساس درس</h3>
-                    </div>
-                </div>
-
-                <div id="subjectReport" class="subject-report"></div>
-
-            </div>
-
-
-            <!-- گزارش بر اساس روز -->
-            <div class="report-section">
-
-                <div class="section-title">
-                    <div>
-                        <span class="small-title">OVERVIEW</span>
-                        <h3>وضعیت روزها</h3>
-                    </div>
-                </div>
-
-                <div id="advisorDays" class="advisor-days"></div>
-
-            </div>
-
-
-            <button class="btn neon" id="pdfBtn" type="button">
-                🧾 دانلود PDF گزارش
-            </button>
-
-        </section>
-
-    </main>
-
-
-    <!-- اعلان -->
-    <div id="toast" class="toast">
-        <span>✓</span>
-        <p>ذخیره شد</p>
-    </div>
-
-
-    <!-- مودال ثبت وضعیت درس -->
-    <div id="registerModal" class="modal-overlay">
-        <div class="modal">
-
-            <h3 id="modalTitle">عنوان درس</h3>
-
-            <div class="modal-choice">
-                <button class="choice-btn studied" id="studiedBtn" type="button">✅ خوندم</button>
-                <button class="choice-btn not-studied" id="notStudiedBtn" type="button">❌ نخوندم</button>
-            </div>
-
-            <div id="studyDetails" class="study-details hidden">
-
-                <label>
-                    چند دقیقه مطالعه کردی؟
-                    <input type="number" id="minutesInput" min="0" placeholder="مثلاً ۷۵">
-                </label>
-
-                <label>
-                    چند تا تست زدی؟
-                    <input type="number" id="testsInput" min="0" placeholder="مثلاً ۴۰">
-                </label>
-
-                <button class="btn neon" id="confirmStudyBtn" type="button">تایید و ثبت</button>
-
-            </div>
-
-            <button class="btn ghost" id="closeModalBtn" type="button">انصراف</button>
-
+    <!-- ============================ ناوبری تب‌ها ============================ -->
+    <nav class="tab-nav glass">
+      <button class="tab-btn active" type="button" data-tab="student">پنل دانش‌آموز</button>
+      <button class="tab-btn" type="button" data-tab="advisor">پنل مشاور</button>
+    </nav>
+
+    <!-- ============================ پنل دانش‌آموز ============================ -->
+    <section id="panel-student" class="panel active">
+
+      <h2 class="section-title first">خلاصه پیشرفت</h2>
+      <div id="dashboardGrid" class="dashboard-grid"><!-- توسط OOOO.js پر می‌شود --></div>
+
+      <h2 class="section-title">برنامه روزهای مطالعاتی</h2>
+      <div id="daysContainer"><!-- کارت‌های آکاردئون روزها توسط OOOO.js ساخته می‌شوند --></div>
+
+    </section>
+
+    <!-- ============================ پنل مشاور ============================ -->
+    <section id="panel-advisor" class="panel">
+
+      <div class="advisor-intro">
+        <h2 class="advisor-title">پنل مشاور</h2>
+        <button id="exportPdfBtn" class="export-btn" type="button">خروجی PDF</button>
+      </div>
+
+      <h2 class="section-title">گزارش کلی</h2>
+      <div id="advisorOverallGrid" class="dashboard-grid"><!-- پر می‌شود توسط OOOO.js --></div>
+
+      <h2 class="section-title">گزارش روزانه</h2>
+      <div class="table-wrap">
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>روز</th><th>برنامه (دقیقه)</th><th>مطالعه (دقیقه)</th>
+              <th>درصد</th><th>تست</th><th>انجام‌شده</th><th>نخوانده</th>
+            </tr>
+          </thead>
+          <tbody id="dailyReportBody"><!-- پر می‌شود توسط OOOO.js --></tbody>
+        </table>
+      </div>
+
+      <h2 class="section-title">گزارش درسی</h2>
+      <div class="table-wrap">
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>درس</th><th>برنامه (دقیقه)</th><th>مطالعه (دقیقه)</th>
+              <th>درصد</th><th>تست</th><th>انجام‌شده</th><th>نخوانده</th>
+            </tr>
+          </thead>
+          <tbody id="subjectReportBody"><!-- پر می‌شود توسط OOOO.js --></tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </div>
+
+  <!-- ============================ مودال ثبت وضعیت فعالیت ============================ -->
+  <div id="recordModal" class="modal-overlay">
+    <div class="modal-box glass">
+      <div class="modal-head">
+        <div>
+          <h3 id="modalActivityTitle" class="modal-title"></h3>
+          <p id="modalActivityMeta" class="modal-meta"></p>
         </div>
+        <button id="modalCloseBtn" class="modal-close" type="button" aria-label="بستن">✕</button>
+      </div>
+
+      <!-- مرحله ۱: انتخاب خواندم / نخواندم -->
+      <div id="modalChoiceStep">
+        <div class="choice-row">
+          <button id="btnDone" class="choice-btn done-btn" type="button">🟢 خواندم</button>
+          <button id="btnSkipped" class="choice-btn skip-btn" type="button">🔴 نخواندم</button>
+        </div>
+      </div>
+
+      <!-- مرحله ۲: فرم ثبت مدت مطالعه و تعداد تست (فقط برای «خواندم») -->
+      <div id="modalFormStep" class="hidden">
+        <div class="form-field">
+          <label for="studyMinutesInput">مدت مطالعه (دقیقه)</label>
+          <input id="studyMinutesInput" type="number" min="0" inputmode="numeric" placeholder="مثلاً 75" />
+        </div>
+        <div class="form-field">
+          <label for="testCountInput">تعداد تست (در صورت نبود تست، عدد ۰ را وارد کنید)</label>
+          <input id="testCountInput" type="number" min="0" inputmode="numeric" placeholder="مثلاً 80" />
+        </div>
+        <p id="modalFormError" class="form-error"></p>
+        <button id="confirmDoneBtn" class="confirm-btn" type="button">ثبت نهایی</button>
+      </div>
     </div>
+  </div>
 
+  <!-- کانتینر مخفی برای رندر صفحات گزارش PDF (توسط html2canvas عکس گرفته می‌شود) -->
+  <div id="pdfRenderRoot" aria-hidden="true"></div>
 
-    <!-- گزارش قابل چاپ (فقط هنگام PDF گرفتن نمایش داده می‌شود) -->
-    <div id="printReport" class="print-only"></div>
-
-
-    <!-- JavaScript -->
-    <script src="OOOO.js"></script>
-
+  <!-- منطق اصلی برنامه -->
+  <script src="OOOO.js"></script>
 </body>
 </html>
