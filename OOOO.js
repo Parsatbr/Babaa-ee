@@ -900,3 +900,569 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("exportPdfBtn").addEventListener("click", exportAdvisorPdf);
 });
+/* =========================================================
+   اصلاحات جدید:
+   1. فعال کردن کشویی روزهای پنل دانش‌آموز
+   2. گزارش کامل روزبه‌روز مشاور
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   تبدیل دقیقه به نمایش مناسب
+   بیشتر از 180 دقیقه -> ساعت
+--------------------------------------------------------- */
+
+function formatAdvisorTime(minutes) {
+
+    minutes = Number(minutes) || 0;
+
+    if (minutes > 180) {
+
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+
+        if (mins === 0) {
+            return `${hours} ساعت`;
+        }
+
+        return `${hours} ساعت و ${mins} دقیقه`;
+    }
+
+    return `${minutes} دقیقه`;
+}
+
+
+/* ---------------------------------------------------------
+   محاسبه مدت یک فعالیت
+--------------------------------------------------------- */
+
+function advisorActivityMinutes(activity) {
+
+    if (!activity || !activity.start || !activity.end) {
+        return 0;
+    }
+
+    const [sh, sm] = activity.start.split(":").map(Number);
+    const [eh, em] = activity.end.split(":").map(Number);
+
+    return ((eh * 60 + em) - (sh * 60 + sm));
+}
+
+
+/* ---------------------------------------------------------
+   پیدا کردن رکورد فعالیت
+   از ساختار فعلی RECORDS استفاده می‌کند
+--------------------------------------------------------- */
+
+function advisorGetRecord(dayIndex, activityIndex) {
+
+    const id = `day-${dayIndex}-activity-${activityIndex}`;
+
+    if (typeof RECORDS !== "undefined" && RECORDS[id]) {
+        return RECORDS[id];
+    }
+
+    return {};
+}
+
+
+/* ---------------------------------------------------------
+   مدت مطالعه ثبت‌شده
+--------------------------------------------------------- */
+
+function advisorStudiedMinutes(record) {
+
+    if (!record) return 0;
+
+    return Number(
+        record.studyMinutes ??
+        record.studiedMinutes ??
+        record.minutes ??
+        record.duration ??
+        record.time ??
+        0
+    ) || 0;
+}
+
+
+/* ---------------------------------------------------------
+   تعداد تست
+--------------------------------------------------------- */
+
+function advisorTests(record) {
+
+    if (!record) return 0;
+
+    return Number(
+        record.tests ??
+        record.testCount ??
+        record.test ??
+        0
+    ) || 0;
+}
+
+
+/* ---------------------------------------------------------
+   درصد تکمیل
+--------------------------------------------------------- */
+
+function advisorPercent(studied, planned) {
+
+    if (!planned) return 0;
+
+    return Math.min(
+        100,
+        Math.round((studied / planned) * 100)
+    );
+}
+
+
+/* =========================================================
+   ساخت گزارش مشاور
+========================================================= */
+
+function buildAdvisorReportNew() {
+
+    let totalPlanned = 0;
+    let totalStudied = 0;
+    let totalTests = 0;
+
+    let dailyHTML = "";
+
+
+    SCHEDULE.forEach((day, dayIndex) => {
+
+        let dayPlanned = 0;
+        let dayStudied = 0;
+        let dayTests = 0;
+
+        let activitiesHTML = "";
+
+
+        day.activities.forEach((activity, activityIndex) => {
+
+            /*
+             وعده‌های غذایی در گزارش درسی
+             محاسبه نمی‌شوند.
+            */
+
+            if (activity.type === "meal") {
+                return;
+            }
+
+
+            const planned =
+                advisorActivityMinutes(activity);
+
+            const record =
+                advisorGetRecord(
+                    dayIndex,
+                    activityIndex
+                );
+
+            const studied =
+                advisorStudiedMinutes(record);
+
+            const tests =
+                advisorTests(record);
+
+            const percent =
+                advisorPercent(
+                    studied,
+                    planned
+                );
+
+
+            dayPlanned += planned;
+            dayStudied += studied;
+            dayTests += tests;
+
+
+            activitiesHTML += `
+
+                <div class="advisor-activity">
+
+                    <div class="advisor-activity-title">
+                        📚 ${activity.title}
+                    </div>
+
+                    <div class="advisor-activity-grid">
+
+                        <div class="advisor-mini-stat">
+
+                            <span class="advisor-mini-label">
+                                زمان برنامه‌ریزی‌شده
+                            </span>
+
+                            <span class="advisor-mini-value">
+                                ${formatAdvisorTime(planned)}
+                            </span>
+
+                        </div>
+
+
+                        <div class="advisor-mini-stat">
+
+                            <span class="advisor-mini-label">
+                                مدت زمان خوانده‌شده
+                            </span>
+
+                            <span class="advisor-mini-value">
+                                ${formatAdvisorTime(studied)}
+                            </span>
+
+                        </div>
+
+
+                        <div class="advisor-mini-stat">
+
+                            <span class="advisor-mini-label">
+                                درصد تکمیل
+                            </span>
+
+                            <span class="advisor-mini-value">
+                                ${percent}٪
+                            </span>
+
+                        </div>
+
+
+                        <div class="advisor-mini-stat">
+
+                            <span class="advisor-mini-label">
+                                تعداد تست
+                            </span>
+
+                            <span class="advisor-mini-value">
+                                ${tests}
+                            </span>
+
+                        </div>
+
+
+                        <div class="advisor-mini-stat">
+
+                            <span class="advisor-mini-label">
+                                زمان
+                            </span>
+
+                            <span class="advisor-mini-value">
+                                ${activity.start}
+                                تا
+                                ${activity.end}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+        });
+
+
+        totalPlanned += dayPlanned;
+        totalStudied += dayStudied;
+        totalTests += dayTests;
+
+
+        const dayPercent =
+            advisorPercent(
+                dayStudied,
+                dayPlanned
+            );
+
+
+        dailyHTML += `
+
+            <div class="advisor-day-card">
+
+                <div class="advisor-day-title">
+
+                    ${day.weekday}
+                    —
+                    ${day.date}
+
+                </div>
+
+
+                <div class="advisor-day-summary">
+
+                    <div class="advisor-chip">
+                        برنامه این روز:
+                        ${formatAdvisorTime(dayPlanned)}
+                    </div>
+
+                    <div class="advisor-chip">
+                        مطالعه‌شده:
+                        ${formatAdvisorTime(dayStudied)}
+                    </div>
+
+                    <div class="advisor-chip">
+                        تکمیل:
+                        ${dayPercent}٪
+                    </div>
+
+                    <div class="advisor-chip">
+                        تست:
+                        ${dayTests}
+                    </div>
+
+                </div>
+
+
+                ${activitiesHTML}
+
+            </div>
+
+        `;
+    });
+
+
+    const overallPercent =
+        advisorPercent(
+            totalStudied,
+            totalPlanned
+        );
+
+
+    return `
+
+        <!-- چهار شاخص اصلی -->
+
+        <div class="advisor-summary-grid">
+
+
+            <div class="advisor-stat-card">
+
+                <div class="advisor-stat-title">
+                    مدت زمان برنامه‌ریزی‌شده
+                </div>
+
+                <div class="advisor-stat-value">
+                    ${formatAdvisorTime(totalPlanned)}
+                </div>
+
+            </div>
+
+
+            <div class="advisor-stat-card">
+
+                <div class="advisor-stat-title">
+                    مدت زمان خوانده‌شده
+                </div>
+
+                <div class="advisor-stat-value">
+                    ${formatAdvisorTime(totalStudied)}
+                </div>
+
+            </div>
+
+
+            <div class="advisor-stat-card">
+
+                <div class="advisor-stat-title">
+                    درصد تکمیل برنامه
+                </div>
+
+                <div class="advisor-stat-value">
+                    ${overallPercent}٪
+                </div>
+
+            </div>
+
+
+            <div class="advisor-stat-card">
+
+                <div class="advisor-stat-title">
+                    تعداد تست‌های زده‌شده
+                </div>
+
+                <div class="advisor-stat-value">
+                    ${totalTests}
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- گزارش روزبه‌روز -->
+
+        ${dailyHTML}
+
+    `;
+}
+
+
+/* =========================================================
+   کشویی پنل دانش‌آموز
+========================================================= */
+
+function activateStudentDayDropdown() {
+
+    const containers = [
+        document.getElementById("daysContainer"),
+        document.querySelector(".days-container")
+    ].filter(Boolean);
+
+
+    containers.forEach(container => {
+
+        if (container.dataset.dropdownReady === "true") {
+            return;
+        }
+
+        container.dataset.dropdownReady = "true";
+
+
+        container.addEventListener("click", function(event) {
+
+            const button =
+                event.target.closest(".day-header");
+
+
+            if (!button) {
+                return;
+            }
+
+
+            const body =
+                button.nextElementSibling;
+
+
+            if (!body ||
+                !body.classList.contains("day-body")) {
+                return;
+            }
+
+
+            const opening =
+                !body.classList.contains("open");
+
+
+            body.classList.toggle(
+                "open",
+                opening
+            );
+
+
+            button.classList.toggle(
+                "active",
+                opening
+            );
+
+
+            button.setAttribute(
+                "aria-expanded",
+                opening ? "true" : "false"
+            );
+
+        });
+
+    });
+
+}
+
+
+/* =========================================================
+   تابع اتصال گزارش به پنل مشاور
+========================================================= */
+
+function refreshNewAdvisorReport() {
+
+    const report =
+        buildAdvisorReportNew();
+
+
+    /*
+      چند ID رایج را بررسی می‌کنیم تا
+      ساختار فعلی برنامه خراب نشود.
+    */
+
+    const possibleContainers = [
+
+        document.getElementById("advisorReport"),
+
+        document.getElementById("advisorPanel"),
+
+        document.querySelector(".advisor-report"),
+
+        document.querySelector(".advisor-content"),
+
+        document.querySelector("#advisorContent")
+
+    ].filter(Boolean);
+
+
+    if (!possibleContainers.length) {
+        return;
+    }
+
+
+    /*
+      اگر کانتینر اصلی پیدا شد،
+      فقط محتوای گزارش را داخل آن قرار می‌دهیم.
+    */
+
+    possibleContainers[0].innerHTML = report;
+}
+
+
+/* =========================================================
+   اجرای اولیه
+========================================================= */
+
+function initializeNewStudyFeatures() {
+
+    activateStudentDayDropdown();
+
+    /*
+      چون پنل ممکن است بعداً دوباره render شود،
+      دوباره event را روی container جدید فعال می‌کنیم.
+    */
+
+    setTimeout(
+        activateStudentDayDropdown,
+        300
+    );
+
+    setTimeout(
+        activateStudentDayDropdown,
+        1000
+    );
+
+}
+
+
+/* ---------------------------------------------------------
+   شروع
+--------------------------------------------------------- */
+
+if (document.readyState === "loading") {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeNewStudyFeatures
+    );
+
+} else {
+
+    initializeNewStudyFeatures();
+
+}
+
+
+/*
+  برای استفاده احتمالی توسط کد اصلی
+*/
+
+window.buildAdvisorReportNew =
+    buildAdvisorReportNew;
+
+window.refreshNewAdvisorReport =
+    refreshNewAdvisorReport;
+
+window.activateStudentDayDropdown =
+    activateStudentDayDropdown;
