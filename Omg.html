@@ -79,7 +79,7 @@
                     </h2>
 
                     <p>
-                        هر روز رو باز کن و فعالیت‌های همون روز رو ببین.
+                        هر روز رو باز کن، درس‌ها رو بخون و با دکمه‌ی ثبت وضعیتش رو مشخص کن.
                     </p>
                 </div>
 
@@ -95,7 +95,6 @@
 
                 <div class="stat-card">
                     <div class="stat-icon purple">📚</div>
-
                     <div>
                         <span>کل روزها</span>
                         <strong id="totalDays">0</strong>
@@ -104,16 +103,14 @@
 
                 <div class="stat-card">
                     <div class="stat-icon cyan">✅</div>
-
                     <div>
-                        <span>انجام شده</span>
+                        <span>روز کامل شده</span>
                         <strong id="completedDays">0</strong>
                     </div>
                 </div>
 
                 <div class="stat-card">
                     <div class="stat-icon green">⏱️</div>
-
                     <div>
                         <span>زمان مطالعه</span>
                         <strong id="totalStudy">0h</strong>
@@ -148,6 +145,26 @@
             <!-- روزها -->
             <div id="daysContainer" class="days-container"></div>
 
+
+            <!-- پشتیبان‌گیری -->
+            <div class="section-title">
+                <div>
+                    <span class="small-title">BACKUP</span>
+                    <h3>پشتیبان‌گیری</h3>
+                </div>
+            </div>
+
+            <div class="backup-actions">
+                <button class="btn neon" id="backupBtn" type="button">
+                    💾 دریافت فایل پشتیبان
+                </button>
+
+                <label class="btn neon" for="restoreInput">
+                    📂 بازیابی از فایل
+                </label>
+                <input type="file" id="restoreInput" accept="application/json" hidden>
+            </div>
+
         </section>
 
 
@@ -181,11 +198,11 @@
             <div class="report-grid">
 
                 <div class="report-card">
-                    <span>درصد پیشرفت</span>
+                    <span>درصد پیشرفت کل</span>
                     <strong id="advisorProgress">0%</strong>
 
                     <div class="circle-progress">
-                        <div id="circleValue">0%</div>
+                        <div id="circleValue"></div>
                     </div>
                 </div>
 
@@ -198,12 +215,34 @@
                 <div class="report-card">
                     <span>زمان مطالعه</span>
                     <strong id="advisorHours">0 ساعت</strong>
-                    <small>مطالعه برنامه‌ریزی‌شده</small>
+                    <small>مطالعه‌ی واقعی ثبت شده</small>
+                </div>
+
+                <div class="report-card">
+                    <span>تعداد کل تست</span>
+                    <strong id="advisorTestsTotal">0</strong>
+                    <small>مجموع تست‌های زده شده</small>
                 </div>
 
             </div>
 
 
+            <!-- گزارش بر اساس درس -->
+            <div class="report-section">
+
+                <div class="section-title">
+                    <div>
+                        <span class="small-title">SUBJECTS</span>
+                        <h3>گزارش بر اساس درس</h3>
+                    </div>
+                </div>
+
+                <div id="subjectReport" class="subject-report"></div>
+
+            </div>
+
+
+            <!-- گزارش بر اساس روز -->
             <div class="report-section">
 
                 <div class="section-title">
@@ -217,6 +256,11 @@
 
             </div>
 
+
+            <button class="btn neon" id="pdfBtn" type="button">
+                🧾 دانلود PDF گزارش
+            </button>
+
         </section>
 
     </main>
@@ -227,6 +271,43 @@
         <span>✓</span>
         <p>ذخیره شد</p>
     </div>
+
+
+    <!-- مودال ثبت وضعیت درس -->
+    <div id="registerModal" class="modal-overlay">
+        <div class="modal">
+
+            <h3 id="modalTitle">عنوان درس</h3>
+
+            <div class="modal-choice">
+                <button class="choice-btn studied" id="studiedBtn" type="button">✅ خوندم</button>
+                <button class="choice-btn not-studied" id="notStudiedBtn" type="button">❌ نخوندم</button>
+            </div>
+
+            <div id="studyDetails" class="study-details hidden">
+
+                <label>
+                    چند دقیقه مطالعه کردی؟
+                    <input type="number" id="minutesInput" min="0" placeholder="مثلاً ۷۵">
+                </label>
+
+                <label>
+                    چند تا تست زدی؟
+                    <input type="number" id="testsInput" min="0" placeholder="مثلاً ۴۰">
+                </label>
+
+                <button class="btn neon" id="confirmStudyBtn" type="button">تایید و ثبت</button>
+
+            </div>
+
+            <button class="btn ghost" id="closeModalBtn" type="button">انصراف</button>
+
+        </div>
+    </div>
+
+
+    <!-- گزارش قابل چاپ (فقط هنگام PDF گرفتن نمایش داده می‌شود) -->
+    <div id="printReport" class="print-only"></div>
 
 
     <!-- JavaScript -->
