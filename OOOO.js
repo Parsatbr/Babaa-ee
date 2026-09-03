@@ -2047,7 +2047,7 @@ async function exportAdvisorPdf() {
         await html2canvas(
           pages[index],
           {
-            scale: 2,
+            scale: 1,
             backgroundColor: "#0b0e17"
           }
         );
