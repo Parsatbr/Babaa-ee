@@ -52,7 +52,50 @@
       <div id="daysContainer"><!-- کارت‌های آکاردئون روزها توسط OOOO.js ساخته می‌شوند --></div>
 
     </section>
+<section class="backup-section">
 
+  <div class="backup-header">
+    <div>
+      <h3>پشتیبان‌گیری و بازیابی</h3>
+      <p>اطلاعات ثبت‌شده مطالعه و تست‌های خود را ذخیره یا بازیابی کنید.</p>
+    </div>
+  </div>
+
+  <div class="backup-actions">
+
+    <button
+      type="button"
+      class="backup-btn backup-btn-primary"
+      id="backupDataBtn"
+    >
+      <span>💾</span>
+      پشتیبان‌گیری
+    </button>
+
+    <button
+      type="button"
+      class="backup-btn backup-btn-secondary"
+      id="restoreDataBtn"
+    >
+      <span>📂</span>
+      بازیابی اطلاعات
+    </button>
+
+    <input
+      type="file"
+      id="restoreDataInput"
+      accept=".json,application/json"
+      hidden
+    >
+
+  </div>
+
+  <div class="backup-info">
+    <span>🔒</span>
+    فایل پشتیبان فقط شامل اطلاعات ثبت‌شده شماست و برنامه مطالعاتی را تغییر نمی‌دهد.
+  </div>
+
+</section>
     <!-- ============================ پنل مشاور ============================ -->
     <section id="panel-advisor" class="panel">
 
