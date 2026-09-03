@@ -1,760 +1,317 @@
-/* =====================================================
-   StudyFlow
-   OOOO.js
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-   این فایل تمام منطق برنامه را کنترل می‌کند.
-   ===================================================== */
+    <title>پنل مطالعاتی</title>
 
+    <!-- فونت جذاب -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-/* =====================================================
-   1. برنامه مطالعاتی
-   =====================================================
+    <!-- CSS -->
+    <link rel="stylesheet" href="YahYah.css">
+</head>
 
-   برای اضافه کردن روز جدید فقط یک شیء جدید
-   به این آرایه اضافه کن.
+<body>
 
-   ساختار:
+    <!-- افکت پس‌زمینه -->
+    <div class="background">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+        <div class="grid"></div>
+    </div>
 
-   {
-       day: "شنبه",
-       date: "۱۲ شهریور",
-       activities: [
-           {
-               title: "مطالعه ریاضی",
-               time: "75 دقیقه"
-           }
-       ]
-   }
+    <!-- هدر -->
+    <header class="topbar">
 
-   ===================================================== */
+        <div class="brand">
+            <div class="brand-icon">⚡</div>
 
-const studyPlan = [
+            <div>
+                <h1>Study<span>Flow</span></h1>
+                <p>پنل مطالعاتی</p>
+            </div>
+        </div>
 
-    {
-        day: "شنبه",
-        date: "۱۲ شهریور",
-        activities: [
-            {
-                title: "مطالعه و تمرین",
-                time: "۷۵ دقیقه"
-            },
-            {
-                title: "تست و مرور",
-                time: "۷۵ دقیقه"
-            }
-        ]
-    },
+        <div class="header-actions">
+            <button class="icon-btn" id="themeBtn" title="تغییر ظاهر">
+                ☀
+            </button>
+        </div>
 
-    {
-        day: "یکشنبه",
-        date: "۱۳ شهریور",
-        activities: [
-            {
-                title: "مطالعه درس اول",
-                time: "۷۵ دقیقه"
-            },
-            {
-                title: "مطالعه درس دوم",
-                time: "۷۵ دقیقه"
-            }
-        ]
-    },
-
-    {
-        day: "دوشنبه",
-        date: "۱۴ شهریور",
-        activities: [
-            {
-                title: "مطالعه",
-                time: "۷۵ دقیقه"
-            },
-            {
-                title: "تست",
-                time: "۷۵ دقیقه"
-            }
-        ]
-    },
-
-    {
-        day: "سه‌شنبه",
-        date: "۱۵ شهریور",
-        activities: [
-            {
-                title: "مطالعه",
-                time: "۷۵ دقیقه"
-            },
-            {
-                title: "تست",
-                time: "۷۵ دقیقه"
-            }
-        ]
-    },
-
-    {
-        day: "چهارشنبه",
-        date: "۱۶ شهریور",
-        activities: [
-            {
-                title: "مطالعه",
-                time: "۷۵ دقیقه"
-            },
-            {
-                title: "مرور",
-                time: "۷۵ دقیقه"
-            }
-        ]
-    },
-
-    {
-        day: "پنجشنبه",
-        date: "۱۷ شهریور",
-        activities: [
-            {
-                title: "مطالعه",
-                time: "۷۵ دقیقه"
-            },
-            {
-                title: "تست",
-                time: "۷۵ دقیقه"
-            }
-        ]
-    },
-
-    {
-        day: "جمعه",
-        date: "۱۸ شهریور",
-        activities: [
-            {
-                title: "مرور هفتگی",
-                time: "۷۵ دقیقه"
-            }
-        ]
-    }
-
-];
+    </header>
 
 
-/* =====================================================
-   2. ذخیره وضعیت
-   =====================================================
+    <!-- محتوای اصلی -->
+    <main class="container">
 
-   localStorage باعث می‌شود اگر صفحه را ببندی،
-   وضعیت تیک‌ها از بین نرود.
-   ===================================================== */
+        <!-- تب‌ها -->
+        <nav class="tabs">
 
-const STORAGE_KEY = "studyFlowProgress";
-
-let savedProgress =
-    JSON.parse(
-        localStorage.getItem(STORAGE_KEY) || "{}"
-    );
-
-
-/* =====================================================
-   3. عناصر HTML
-   ===================================================== */
-
-const daysContainer =
-    document.getElementById("daysContainer");
-
-const advisorDays =
-    document.getElementById("advisorDays");
-
-const totalDays =
-    document.getElementById("totalDays");
-
-const completedDays =
-    document.getElementById("completedDays");
-
-const totalStudy =
-    document.getElementById("totalStudy");
-
-const progressBar =
-    document.getElementById("progressBar");
-
-const progressPercent =
-    document.getElementById("progressPercent");
-
-const advisorProgress =
-    document.getElementById("advisorProgress");
-
-const advisorCompleted =
-    document.getElementById("advisorCompleted");
-
-const advisorTotal =
-    document.getElementById("advisorTotal");
-
-const advisorHours =
-    document.getElementById("advisorHours");
-
-const circleValue =
-    document.getElementById("circleValue");
-
-const toast =
-    document.getElementById("toast");
-
-
-/* =====================================================
-   4. ساخت روزها
-   ===================================================== */
-
-function renderDays() {
-
-    daysContainer.innerHTML = "";
-
-    studyPlan.forEach((day, dayIndex) => {
-
-        const card =
-            document.createElement("article");
-
-        card.className = "day-card";
-
-        card.innerHTML = `
-
-            <button
-                class="day-header"
-                type="button"
-                aria-expanded="false"
-            >
-
-                <div class="day-number">
-                    ${dayIndex + 1}
-                </div>
-
-                <div class="day-info">
-
-                    <strong>
-                        ${day.day}
-                    </strong>
-
-                    <small>
-                        ${day.date}
-                    </small>
-
-                </div>
-
-                <div class="day-status">
-                    ${day.activities.length} فعالیت
-                </div>
-
-                <div class="arrow">
-                   ⌄
-                </div>
-
+            <button class="tab active" data-page="student">
+                <span>🎓</span>
+                پنل دانش‌آموز
             </button>
 
-            <div class="day-content">
+            <button class="tab" data-page="advisor">
+                <span>📊</span>
+                گزارش مشاور
+            </button>
 
-                <div class="day-inner">
+        </nav>
 
-                    ${day.activities
-                        .map(
-                            (activity, activityIndex) =>
-                                createActivity(
-                                    dayIndex,
-                                    activityIndex,
-                                    activity
-                                )
-                        )
-                        .join("")}
 
+        <!-- ================= دانش آموز ================= -->
+
+        <section id="student" class="page active">
+
+            <div class="hero-card">
+
+                <div>
+                    <span class="badge">برنامه مطالعاتی</span>
+
+                    <h2>
+                        برنامه امروزت رو
+                        <span>شروع کن!</span>
+                    </h2>
+
+                    <p>
+                        هر روز رو باز کن، درس‌ها رو بخون و با دکمه‌ی ثبت وضعیتش رو مشخص کن.
+                    </p>
+                </div>
+
+                <div class="hero-icon">
+                    🚀
                 </div>
 
             </div>
-        `;
 
 
-        /* باز و بسته شدن روز */
+            <!-- آمار -->
+            <div class="stats">
 
-        const header =
-            card.querySelector(".day-header");
+                <div class="stat-card">
+                    <div class="stat-icon purple">📚</div>
+                    <div>
+                        <span>کل روزها</span>
+                        <strong id="totalDays">0</strong>
+                    </div>
+                </div>
 
-        header.addEventListener(
-            "click",
-            () => {
+                <div class="stat-card">
+                    <div class="stat-icon cyan">✅</div>
+                    <div>
+                        <span>روز کامل شده</span>
+                        <strong id="completedDays">0</strong>
+                    </div>
+                </div>
 
-                const isOpen =
-                    card.classList.toggle("open");
-
-                header.setAttribute(
-                    "aria-expanded",
-                    isOpen
-                );
-
-            }
-        );
-
-
-        /* جلوگیری از ایجاد لگ با event delegation */
-
-        card.addEventListener(
-            "change",
-            handleActivityChange
-        );
-
-
-        daysContainer.appendChild(card);
-
-    });
-
-}
-
-
-/* =====================================================
-   5. ساخت فعالیت
-   ===================================================== */
-
-function createActivity(
-    dayIndex,
-    activityIndex,
-    activity
-) {
-
-    const key =
-        `${dayIndex}-${activityIndex}`;
-
-    const checked =
-        savedProgress[key] === true;
-
-    return `
-
-        <label class="activity">
-
-            <input
-                class="activity-check"
-                type="checkbox"
-                data-key="${key}"
-                ${checked ? "checked" : ""}
-            >
-
-            <div class="activity-info">
-
-                <strong>
-                    ${activity.title}
-                </strong>
-
-                <small>
-                    فعالیت مطالعاتی
-                </small>
+                <div class="stat-card">
+                    <div class="stat-icon green">⏱️</div>
+                    <div>
+                        <span>زمان مطالعه</span>
+                        <strong id="totalStudy">0h</strong>
+                    </div>
+                </div>
 
             </div>
 
-            <div class="activity-time">
-                ${activity.time}
+
+            <!-- عنوان -->
+            <div class="section-title">
+
+                <div>
+                    <span class="small-title">PROGRAM</span>
+                    <h3>برنامه روزانه</h3>
+                </div>
+
+                <div class="progress-mini">
+                    <div class="progress-text">
+                        پیشرفت
+                        <b id="progressPercent">0%</b>
+                    </div>
+
+                    <div class="progress">
+                        <div id="progressBar"></div>
+                    </div>
+                </div>
+
             </div>
 
-        </label>
 
-    `;
-}
+            <!-- روزها -->
+            <div id="daysContainer" class="days-container"></div>
 
 
-/* =====================================================
-   6. تغییر تیک فعالیت
-   ===================================================== */
+            <!-- پشتیبان‌گیری -->
+            <div class="section-title">
+                <div>
+                    <span class="small-title">BACKUP</span>
+                    <h3>پشتیبان‌گیری</h3>
+                </div>
+            </div>
 
-function handleActivityChange(event) {
+            <div class="backup-actions">
+                <button class="btn neon" id="backupBtn" type="button">
+                    💾 دریافت فایل پشتیبان
+                </button>
 
-    if (
-        !event.target.classList.contains(
-            "activity-check"
-        )
-    ) {
-        return;
-    }
+                <label class="btn neon" for="restoreInput">
+                    📂 بازیابی از فایل
+                </label>
+                <input type="file" id="restoreInput" accept="application/json" hidden>
+            </div>
 
+        </section>
 
-    const key =
-        event.target.dataset.key;
 
+        <!-- ================= گزارش مشاور ================= -->
 
-    savedProgress[key] =
-        event.target.checked;
+        <section id="advisor" class="page">
 
+            <div class="advisor-header">
 
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(savedProgress)
-    );
+                <div>
+                    <span class="badge">ADVISOR PANEL</span>
 
+                    <h2>
+                        گزارش
+                        <span>مطالعاتی</span>
+                    </h2>
 
-    updateStatistics();
-
-    showToast(
-        event.target.checked
-            ? "فعالیت انجام شد ✓"
-            : "وضعیت فعالیت تغییر کرد"
-    );
-}
-
-
-/* =====================================================
-   7. محاسبه آمار
-   ===================================================== */
-
-function calculateStatistics() {
-
-    let totalActivities = 0;
-
-    let completedActivities = 0;
-
-    let completedDayCount = 0;
-
-    let studyMinutes = 0;
-
-
-    studyPlan.forEach(
-        (day, dayIndex) => {
-
-            let dayCompleted = true;
-
-
-            day.activities.forEach(
-                (activity, activityIndex) => {
-
-                    totalActivities++;
-
-
-                    const key =
-                        `${dayIndex}-${activityIndex}`;
-
-
-                    if (
-                        savedProgress[key]
-                    ) {
-
-                        completedActivities++;
-
-                    } else {
-
-                        dayCompleted = false;
-
-                    }
-
-
-                    studyMinutes +=
-                        parseTime(
-                            activity.time
-                        );
-
-                }
-            );
-
-
-            if (
-                day.activities.length > 0 &&
-                dayCompleted
-            ) {
-
-                completedDayCount++;
-
-            }
-
-        }
-    );
-
-
-    return {
-        totalActivities,
-        completedActivities,
-        completedDayCount,
-        studyMinutes
-    };
-}
-
-
-/* =====================================================
-   8. تبدیل زمان به دقیقه
-   ===================================================== */
-
-function parseTime(time) {
-
-    const number =
-        parseInt(
-            time.replace(
-                /[^0-9]/g,
-                ""
-            )
-        );
-
-
-    return isNaN(number)
-        ? 0
-        : number;
-}
-
-
-/* =====================================================
-   9. به‌روزرسانی آمار
-   ===================================================== */
-
-function updateStatistics() {
-
-    const stats =
-        calculateStatistics();
-
-
-    const {
-        totalActivities,
-        completedActivities,
-        completedDayCount,
-        studyMinutes
-    } = stats;
-
-
-    const percent =
-        totalActivities === 0
-            ? 0
-            : Math.round(
-                completedActivities /
-                totalActivities *
-                100
-            );
-
-
-    const hours =
-        Math.floor(
-            studyMinutes / 60
-        );
-
-
-    /* دانش‌آموز */
-
-    totalDays.textContent =
-        studyPlan.length;
-
-
-    completedDays.textContent =
-        completedDayCount;
-
-
-    totalStudy.textContent =
-        `${hours}h`;
-
-
-    progressPercent.textContent =
-        `${percent}%`;
-
-
-    progressBar.style.width =
-        `${percent}%`;
-
-
-    /* مشاور */
-
-    advisorProgress.textContent =
-        `${percent}%`;
-
-
-    advisorCompleted.textContent =
-        completedDayCount;
-
-
-    advisorTotal.textContent =
-        studyPlan.length;
-
-
-    advisorHours.textContent =
-        `${hours} ساعت`;
-
-
-    circleValue.style.width =
-        `${percent}%`;
-
-
-    renderAdvisorDays();
-}
-
-
-/* =====================================================
-   10. گزارش روزهای مشاور
-   ===================================================== */
-
-function renderAdvisorDays() {
-
-    advisorDays.innerHTML = "";
-
-
-    studyPlan.forEach(
-        (day, dayIndex) => {
-
-            const allDone =
-                day.activities.every(
-                    (_, activityIndex) =>
-                        savedProgress[
-                            `${dayIndex}-${activityIndex}`
-                        ] === true
-                );
-
-
-            const item =
-                document.createElement("div");
-
-
-            item.className =
-                "advisor-day";
-
-
-            item.innerHTML = `
-
-                <div class="advisor-day-number">
-                    ${dayIndex + 1}
+                    <p>
+                        وضعیت کلی عملکرد دانش‌آموز
+                    </p>
                 </div>
 
-                <div class="advisor-day-info">
-
-                    <strong>
-                        ${day.day}
-                    </strong>
-
-                    <small>
-                        ${day.date}
-                    </small>
-
+                <div class="advisor-icon">
+                    📈
                 </div>
 
-                <div
-                    class="${
-                        allDone
-                            ? "done"
-                            : "not-done"
-                    }"
-                >
-                    ${
-                        allDone
-                            ? "✓ کامل"
-                            : "در حال انجام"
-                    }
+            </div>
+
+
+            <!-- کارت‌های گزارش -->
+            <div class="report-grid">
+
+                <div class="report-card">
+                    <span>درصد پیشرفت کل</span>
+                    <strong id="advisorProgress">0%</strong>
+
+                    <div class="circle-progress">
+                        <div id="circleValue"></div>
+                    </div>
                 </div>
 
-            `;
+                <div class="report-card">
+                    <span>روزهای تکمیل شده</span>
+                    <strong id="advisorCompleted">0</strong>
+                    <small>از <b id="advisorTotal">0</b> روز</small>
+                </div>
+
+                <div class="report-card">
+                    <span>زمان مطالعه</span>
+                    <strong id="advisorHours">0 ساعت</strong>
+                    <small>مطالعه‌ی واقعی ثبت شده</small>
+                </div>
+
+                <div class="report-card">
+                    <span>تعداد کل تست</span>
+                    <strong id="advisorTestsTotal">0</strong>
+                    <small>مجموع تست‌های زده شده</small>
+                </div>
+
+            </div>
 
 
-            advisorDays.appendChild(item);
+            <!-- گزارش بر اساس درس -->
+            <div class="report-section">
 
-        }
-    );
-}
+                <div class="section-title">
+                    <div>
+                        <span class="small-title">SUBJECTS</span>
+                        <h3>گزارش بر اساس درس</h3>
+                    </div>
+                </div>
 
+                <div id="subjectReport" class="subject-report"></div>
 
-/* =====================================================
-   11. Toast
-   ===================================================== */
-
-let toastTimer;
-
-
-function showToast(message) {
-
-    toast.querySelector("p")
-        .textContent = message;
+            </div>
 
 
-    toast.classList.add("show");
+            <!-- گزارش بر اساس روز -->
+            <div class="report-section">
+
+                <div class="section-title">
+                    <div>
+                        <span class="small-title">OVERVIEW</span>
+                        <h3>وضعیت روزها</h3>
+                    </div>
+                </div>
+
+                <div id="advisorDays" class="advisor-days"></div>
+
+            </div>
 
 
-    clearTimeout(toastTimer);
+            <button class="btn neon" id="pdfBtn" type="button">
+                🧾 دانلود PDF گزارش
+            </button>
+
+        </section>
+
+    </main>
 
 
-    toastTimer =
-        setTimeout(
-            () => {
-
-                toast.classList.remove(
-                    "show"
-                );
-
-            },
-            1800
-        );
-}
+    <!-- اعلان -->
+    <div id="toast" class="toast">
+        <span>✓</span>
+        <p>ذخیره شد</p>
+    </div>
 
 
-/* =====================================================
-   12. تب‌های برنامه
-   ===================================================== */
+    <!-- مودال ثبت وضعیت درس -->
+    <div id="registerModal" class="modal-overlay">
+        <div class="modal">
 
-document
-    .querySelectorAll(".tab")
-    .forEach(tab => {
+            <h3 id="modalTitle">عنوان درس</h3>
 
-        tab.addEventListener(
-            "click",
-            () => {
+            <div class="modal-choice">
+                <button class="choice-btn studied" id="studiedBtn" type="button">✅ خوندم</button>
+                <button class="choice-btn not-studied" id="notStudiedBtn" type="button">❌ نخوندم</button>
+            </div>
 
-                const pageName =
-                    tab.dataset.page;
+            <div id="studyDetails" class="study-details hidden">
 
+                <label>
+                    چند دقیقه مطالعه کردی؟
+                    <input type="number" id="minutesInput" min="0" placeholder="مثلاً ۷۵">
+                </label>
 
-                document
-                    .querySelectorAll(".tab")
-                    .forEach(
-                        item =>
-                            item.classList.remove(
-                                "active"
-                            )
-                    );
+                <label>
+                    چند تا تست زدی؟
+                    <input type="number" id="testsInput" min="0" placeholder="مثلاً ۴۰">
+                </label>
 
+                <button class="btn neon" id="confirmStudyBtn" type="button">تایید و ثبت</button>
 
-                document
-                    .querySelectorAll(".page")
-                    .forEach(
-                        page =>
-                            page.classList.remove(
-                                "active"
-                            )
-                    );
+            </div>
+
+            <button class="btn ghost" id="closeModalBtn" type="button">انصراف</button>
+
+        </div>
+    </div>
 
 
-                tab.classList.add(
-                    "active"
-                );
+    <!-- گزارش قابل چاپ (فقط هنگام PDF گرفتن نمایش داده می‌شود) -->
+    <div id="printReport" class="print-only"></div>
 
 
-                document
-                    .getElementById(pageName)
-                    .classList.add(
-                        "active"
-                    );
+    <!-- JavaScript -->
+    <script src="OOOO.js"></script>
 
-            }
-        );
-
-    });
-
-
-/* =====================================================
-   13. دکمه ظاهر
-   ===================================================== */
-
-const themeBtn =
-    document.getElementById("themeBtn");
-
-
-themeBtn.addEventListener(
-    "click",
-    () => {
-
-        document.body.classList.toggle(
-            "light-mode"
-        );
-
-
-        themeBtn.textContent =
-            document.body.classList.contains(
-                "light-mode"
-            )
-                ? "🌙"
-                : "☀";
-
-    }
-);
-
-
-/* =====================================================
-   14. شروع برنامه
-   ===================================================== */
-
-renderDays();
-
-updateStatistics();
+</body>
+</html>
