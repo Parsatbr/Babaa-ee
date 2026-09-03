@@ -2047,14 +2047,14 @@ async function exportAdvisorPdf() {
         await html2canvas(
           pages[index],
           {
-            scale: 1,
+            scale: 0.6,
             backgroundColor: "#0b0e17"
           }
         );
 
 
       const image =
-        canvas.toDataURL("image/jpeg",0.7);
+        canvas.toDataURL("image/jpeg",0.55);
 
 
       const imageHeight =
