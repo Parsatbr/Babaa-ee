@@ -2054,7 +2054,7 @@ async function exportAdvisorPdf() {
 
 
       const image =
-        canvas.toDataURL("image/png");
+        canvas.toDataURL("image/jpeg",0.7);
 
 
       const imageHeight =
@@ -2069,7 +2069,7 @@ async function exportAdvisorPdf() {
 
       pdf.addImage(
         image,
-        "PNG",
+        "JPEG",
         0,
         0,
         pageWidth,
