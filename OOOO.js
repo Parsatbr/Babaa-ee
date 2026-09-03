@@ -1,1074 +1,902 @@
-/* =====================================================
-   StudyFlow
+/* ==========================================================================
    OOOO.js
-   منطق کامل برنامه
-   ===================================================== */
+   منطق کامل «پیگیری برنامه مطالعاتی دانش‌آموز»
+   شامل: داده‌های برنامه، محاسبات، ذخیره‌سازی (localStorage)،
+   رندر پنل دانش‌آموز، رندر پنل مشاور و خروجی PDF
+   ========================================================================== */
 
-
-/* =====================================================
-   ۱. داده‌ی برنامه‌ی مطالعاتی
-   ===================================================== */
-
-const studyPlan = [
-
-    {
-        day: "پنجشنبه", date: "۱۲ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "تست فصل ۱ فیزیک ۱ + دوره فصل ۲ فیزیک ۱" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "دوره فصل ۱ شیمی ۱ + تست، حداقل ۸۰ تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "تست فصل ۱ هندسه ۱" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "الگو و دنباله حسابی، ریاضی ۱ و حسابان + تست" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "هندسه ۳" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "فیزیک ۳" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "عمومی پایه" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "مرور و تست فیزیک ۱" }
-        ]
-    },
-
-    {
-        day: "جمعه", date: "۱۳ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "تست فصل ۱ فیزیک ۱ + دوره فصل ۲ فیزیک ۱" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "دوره فصل ۱ شیمی ۱ + تست، حداقل ۸۰ تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "الگو و دنباله حسابی، ریاضی ۱ و حسابان + تست" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "گسسته" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "تست فصل ۱ هندسه ۱" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "عمومی پایه" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "دوره و تست فیزیک ۱" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "مرور شیمی ۱ و تکمیل تست‌ها" }
-        ]
-    },
-
-    {
-        day: "شنبه", date: "۱۴ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "توان‌های گویا و عبارات جبری + تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "فصل ۲ شیمی ۱ + تست، حداقل ۱۵۰ تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "تست فصل ۲ فیزیک ۱، حداقل ۸۰ تست" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۴۰", title: "تست فصل ۲ هندسه ۱" },
-            { type: "lesson", time: "۱۵:۵۵ تا ۱۷:۱۰", title: "هندسه ۳" },
-            { type: "lesson", time: "۱۷:۲۵ تا ۱۸:۴۰", title: "عمومی پایه" },
-            { type: "lesson", time: "۱۸:۵۵ تا ۲۰:۱۰", title: "دوره و تست فیزیک ۱" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "تکمیل تست شیمی ۱" }
-        ]
-    },
-
-    {
-        day: "یکشنبه", date: "۱۵ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "توان‌های گویا و عبارات جبری + تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "فصل ۲ شیمی ۱ + تست، حداقل ۱۵۰ تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "تست فصل ۲ فیزیک ۱، حداقل ۸۰ تست" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۴۰", title: "تست فصل ۲ هندسه ۱" },
-            { type: "lesson", time: "۱۵:۵۵ تا ۱۷:۱۰", title: "گسسته" },
-            { type: "lesson", time: "۱۷:۲۵ تا ۱۸:۴۰", title: "معادله و نامعادله و معادله درجه ۲ دهم و یازدهم + تست" },
-            { type: "lesson", time: "۱۸:۵۵ تا ۲۰:۱۰", title: "عمومی پایه" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "مرور و تست مباحث ریاضی" }
-        ]
-    },
-
-    {
-        day: "دوشنبه", date: "۱۶ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "توان‌های گویا و عبارات جبری + تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "فصل ۲ شیمی ۱ + تست، حداقل ۱۵۰ تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۱۰", title: "تست فصل ۲ هندسه ۱" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "فیزیک ۳" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "معادله و نامعادله و معادله درجه ۲ دهم و یازدهم + تست" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "عمومی پایه" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "تست فصل ۲ فیزیک ۱" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "تکمیل تست‌های ریاضی" }
-        ]
-    },
-
-    {
-        day: "سه‌شنبه", date: "۱۷ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "فصل ۲ شیمی ۱ + تست، حداقل ۱۵۰ تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "تست فصل ۲ فیزیک ۱، حداقل ۸۰ تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "معادله و نامعادله و معادله درجه ۲ دهم و یازدهم + تست" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۴۰", title: "تست فصل ۳ هندسه ۱" },
-            { type: "lesson", time: "۱۵:۵۵ تا ۱۷:۱۰", title: "هندسه ۳" },
-            { type: "lesson", time: "۱۷:۲۵ تا ۱۸:۴۰", title: "عمومی پایه" },
-            { type: "lesson", time: "۱۸:۵۵ تا ۲۰:۱۰", title: "دوره و تست فصل ۳ فیزیک ۱" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "مرور شیمی ۱" }
-        ]
-    },
-
-    {
-        day: "چهارشنبه", date: "۱۸ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "فصل ۲ شیمی ۱ + تست، حداقل ۱۵۰ تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "معادله و نامعادله و معادله درجه ۲ دهم و یازدهم + تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۱۰", title: "تست فصل ۳ هندسه ۱" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "دوره و تست فصل ۳ فیزیک ۱" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "گسسته" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "عمومی پایه" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "تکمیل تست فیزیک ۱" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "تکمیل تست ریاضی" }
-        ]
-    },
-
-    {
-        day: "پنجشنبه", date: "۱۹ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "فصل ۲ شیمی ۱ + تست، حداقل ۱۵۰ تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "معادله و نامعادله و معادله درجه ۲ دهم و یازدهم + تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "دوره و تست فصل ۳ فیزیک ۱" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "تست فصل ۴ هندسه ۱" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "تست فصل ۴ هندسه ۱" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "فیزیک ۳" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "عمومی پایه" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "مرور فیزیک ۱" }
-        ]
-    },
-
-    {
-        day: "جمعه", date: "۲۰ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "فصل ۲ شیمی ۱ + تست، حداقل ۱۵۰ تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "معادله و نامعادله و معادله درجه ۲ دهم و یازدهم + تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "تکمیلی فصل‌های ۳ و ۴ هندسه ۱" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "تکمیلی فصل‌های ۳ و ۴ هندسه ۱" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "هندسه ۳" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "عمومی پایه" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "دوره و تست فیزیک ۱" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "تکمیل تست هندسه ۱" }
-        ]
-    },
-
-    {
-        day: "شنبه", date: "۲۱ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "مثلثات دهم و یازدهم + تست، حداقل ۱۵۰ تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "فصل ۳ شیمی ۱ + تست، حداقل ۱۵۰ تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "فصل ۴ فیزیک ۱ + تست، حداقل ۵۰ تست" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "دوره و تست فصل ۱ هندسه ۲" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "گسسته" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "عمومی پایه" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "مثلثات + تست" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "تکمیل تست شیمی ۱" }
-        ]
-    },
-
-    {
-        day: "یکشنبه", date: "۲۲ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "مثلثات دهم و یازدهم + تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "فصل ۳ شیمی ۱ + تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "فصل ۴ فیزیک ۱ + تست" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "دوره و تست فصل ۱ هندسه ۲" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "فیزیک ۳" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "عمومی پایه" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "مثلثات + تست" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "مرور فصل ۳ شیمی ۱" }
-        ]
-    },
-
-    {
-        day: "دوشنبه", date: "۲۳ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "مثلثات دهم و یازدهم + تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "فصل ۳ شیمی ۱ + تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "فصل ۴ فیزیک ۱ + تست" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "دوره و تست فصل ۱ هندسه ۲" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "هندسه ۳" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "عمومی پایه" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "مثلثات + تست" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "تکمیل تست فیزیک ۱" }
-        ]
-    },
-
-    {
-        day: "سه‌شنبه", date: "۲۴ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "مثلثات دهم و یازدهم + تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "فصل ۳ شیمی ۱ + تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "فصل ۴ فیزیک ۱ + تست" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "دوره فصل ۲ هندسه ۲" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "گسسته" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "عمومی پایه" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "مثلثات + تست" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "مرور هندسه ۲" }
-        ]
-    },
-
-    {
-        day: "چهارشنبه", date: "۲۵ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "مثلثات دهم و یازدهم + تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "فصل ۳ شیمی ۱ + تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "دوره فصل ۵ فیزیک ۱" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "دوره فصل ۲ هندسه ۲" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "فیزیک ۳" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "عمومی پایه" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "مثلثات + تست" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "تکمیل تست شیمی ۱" }
-        ]
-    },
-
-    {
-        day: "پنجشنبه", date: "۲۶ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "مثلثات دهم و یازدهم + تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "فصل ۳ شیمی ۱ + تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "دوره فصل ۵ فیزیک ۱" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "دوره و تست فصل ۳ هندسه ۲" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "دوره و تست فصل ۳ هندسه ۲" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "هندسه ۳" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "عمومی پایه" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "مرور فیزیک ۱" }
-        ]
-    },
-
-    {
-        day: "جمعه", date: "۲۷ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "مثلثات دهم و یازدهم + تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "فصل ۳ شیمی ۱ + تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "تکمیلی تستی فصل‌های ۲ و ۳ هندسه ۲" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "تکمیلی تستی فصل‌های ۲ و ۳ هندسه ۲" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "گسسته" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "عمومی پایه" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "دوره فیزیک ۱" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "تکمیل تست هندسه ۲" }
-        ]
-    },
-
-    {
-        day: "شنبه", date: "۲۸ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "تابع دهم و یازدهم + نمایی و لگاریتمی + تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "فصل ۱ شیمی ۲ + تست، حداقل ۱۵۰ تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "تست فصل ۵ فیزیک ۱ / تکمیل تست فصل ۴" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "فصل ۱ آمار و احتمال + تست" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "عمومی پایه" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "فیزیک ۳" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "تابع + تست" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "تکمیل تست شیمی ۲" }
-        ]
-    },
-
-    {
-        day: "یکشنبه", date: "۲۹ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "تابع دهم و یازدهم + نمایی و لگاریتمی + تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "فصل ۱ شیمی ۲ + تست، حداقل ۱۵۰ تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "تست فصل ۵ فیزیک ۱ / تکمیل تست فصل ۴" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "احتمال + تست، بخش اول" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "عمومی پایه" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "هندسه ۳" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "تابع + تست" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "تکمیل تست شیمی ۲" }
-        ]
-    },
-
-    {
-        day: "دوشنبه", date: "۳۰ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "تابع دهم و یازدهم + نمایی و لگاریتمی + تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "فصل ۱ شیمی ۲ + تست، حداقل ۱۵۰ تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "تکمیل تست فصل‌های ۲، ۴ و ۵ فیزیک ۱" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "تکمیلی آمار و احتمال" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "عمومی پایه" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "گسسته" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "تابع + تست" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "مرور فیزیک ۱" }
-        ]
-    },
-
-    {
-        day: "سه‌شنبه", date: "۳۱ شهریور",
-        items: [
-            { type: "meal", time: "۸:۳۰ تا ۹:۱۰", title: "صبحانه" },
-            { type: "lesson", time: "۹:۱۰ تا ۱۰:۲۵", title: "تابع دهم و یازدهم + نمایی و لگاریتمی + تست" },
-            { type: "lesson", time: "۱۰:۴۰ تا ۱۱:۵۵", title: "فصل ۱ شیمی ۲ + تست، حداقل ۱۵۰ تست" },
-            { type: "lesson", time: "۱۲:۱۰ تا ۱۳:۲۵", title: "تکمیل تست فصل‌های ۲، ۴ و ۵ فیزیک ۱" },
-            { type: "meal", time: "۱۴:۰۰ تا ۱۴:۴۰", title: "ناهار" },
-            { type: "lesson", time: "۱۴:۴۰ تا ۱۵:۵۵", title: "احتمال + تست" },
-            { type: "lesson", time: "۱۶:۱۰ تا ۱۷:۲۵", title: "عمومی پایه" },
-            { type: "lesson", time: "۱۷:۴۰ تا ۱۸:۵۵", title: "فیزیک ۳" },
-            { type: "lesson", time: "۱۹:۱۰ تا ۲۰:۲۵", title: "هندسه ۳ + تست" },
-            { type: "meal", time: "۲۱:۰۰ تا ۲۱:۴۰", title: "شام" },
-            { type: "lesson", time: "۲۱:۴۰ تا ۲۲:۵۵", title: "جمع‌بندی و تست ترکیبی" }
-        ]
-    }
-
+/* --------------------------------------------------------------------------
+   1) داده‌های ثابت برنامه مطالعاتی
+   نکته: این آرایه دقیقاً همان برنامه‌ای است که کاربر مشخص کرده و
+   هیچ زمان/فعالیتی از آن حذف یا تغییر داده نشده است.
+   type: "meal"  -> وعده غذایی (غیرقابل ثبت)
+   type: "study" -> فعالیت درسی (قابل ثبت)
+   -------------------------------------------------------------------------- */
+const SCHEDULE = [
+  { date: "12 شهریور", weekday: "پنجشنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"تست فصل ۱ فیزیک ۱ + دوره فصل ۲ فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+    { start:"10:40", end:"11:55", title:"دوره فصل ۱ شیمی ۱ + تست (حداقل ۸۰ تست)", subject:"شیمی ۱", type:"study" },
+    { start:"12:10", end:"13:25", title:"تست فصل ۱ هندسه ۱", subject:"هندسه ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"الگو و دنباله حسابی، ریاضی ۱ و حسابان + تست", subject:"ریاضی ۱ و حسابان", type:"study" },
+    { start:"16:10", end:"17:25", title:"هندسه ۳", subject:"هندسه ۳", type:"study" },
+    { start:"17:40", end:"18:55", title:"فیزیک ۳", subject:"فیزیک ۳", type:"study" },
+    { start:"19:10", end:"20:25", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"مرور و تست فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+  ]},
+  { date: "13 شهریور", weekday: "جمعه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"تست فصل ۱ فیزیک ۱ + دوره فصل ۲ فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+    { start:"10:40", end:"11:55", title:"دوره فصل ۱ شیمی ۱ + تست (حداقل ۸۰ تست)", subject:"شیمی ۱", type:"study" },
+    { start:"12:10", end:"13:25", title:"الگو و دنباله حسابی، ریاضی ۱ و حسابان + تست", subject:"ریاضی ۱ و حسابان", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"گسسته", subject:"گسسته", type:"study" },
+    { start:"16:10", end:"17:25", title:"تست فصل ۱ هندسه ۱", subject:"هندسه ۱", type:"study" },
+    { start:"17:40", end:"18:55", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"19:10", end:"20:25", title:"دوره و تست فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"مرور شیمی ۱ و تکمیل تست‌ها", subject:"شیمی ۱", type:"study" },
+  ]},
+  { date: "14 شهریور", weekday: "شنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"توان‌های گویا و عبارات جبری + تست", subject:"ریاضی (جبر)", type:"study" },
+    { start:"10:40", end:"11:55", title:"فصل ۲ شیمی ۱ + تست (حداقل ۱۵۰ تست)", subject:"شیمی ۱", type:"study" },
+    { start:"12:10", end:"13:25", title:"تست فصل ۲ فیزیک ۱ (حداقل ۸۰ تست)", subject:"فیزیک ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:40", title:"تست فصل ۲ هندسه ۱", subject:"هندسه ۱", type:"study" },
+    { start:"15:55", end:"17:10", title:"هندسه ۳", subject:"هندسه ۳", type:"study" },
+    { start:"17:25", end:"18:40", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"18:55", end:"20:10", title:"دوره و تست فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"تکمیل تست شیمی ۱", subject:"شیمی ۱", type:"study" },
+  ]},
+  { date: "15 شهریور", weekday: "یکشنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"توان‌های گویا و عبارات جبری + تست", subject:"ریاضی (جبر)", type:"study" },
+    { start:"10:40", end:"11:55", title:"فصل ۲ شیمی ۱ + تست (حداقل ۱۵۰ تست)", subject:"شیمی ۱", type:"study" },
+    { start:"12:10", end:"13:25", title:"تست فصل ۲ فیزیک ۱ (حداقل ۸۰ تست)", subject:"فیزیک ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:40", title:"تست فصل ۲ هندسه ۱", subject:"هندسه ۱", type:"study" },
+    { start:"15:55", end:"17:10", title:"گسسته", subject:"گسسته", type:"study" },
+    { start:"17:25", end:"18:40", title:"معادله و نامعادله و معادله درجه ۲ دهم و یازدهم + تست", subject:"ریاضی (معادله)", type:"study" },
+    { start:"18:55", end:"20:10", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"مرور و تست مباحث ریاضی", subject:"ریاضی (معادله)", type:"study" },
+  ]},
+  { date: "16 شهریور", weekday: "دوشنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"توان‌های گویا و عبارات جبری + تست", subject:"ریاضی (جبر)", type:"study" },
+    { start:"10:40", end:"11:55", title:"فصل ۲ شیمی ۱ + تست (حداقل ۱۵۰ تست)", subject:"شیمی ۱", type:"study" },
+    { start:"12:10", end:"13:10", title:"تست فصل ۲ هندسه ۱", subject:"هندسه ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"فیزیک ۳", subject:"فیزیک ۳", type:"study" },
+    { start:"16:10", end:"17:25", title:"معادله و نامعادله و معادله درجه ۲ دهم و یازدهم + تست", subject:"ریاضی (معادله)", type:"study" },
+    { start:"17:40", end:"18:55", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"19:10", end:"20:25", title:"تست فصل ۲ فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"تکمیل تست‌های ریاضی", subject:"ریاضی (معادله)", type:"study" },
+  ]},
+  { date: "17 شهریور", weekday: "سه‌شنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"فصل ۲ شیمی ۱ + تست (حداقل ۱۵۰ تست)", subject:"شیمی ۱", type:"study" },
+    { start:"10:40", end:"11:55", title:"تست فصل ۲ فیزیک ۱ (حداقل ۸۰ تست)", subject:"فیزیک ۱", type:"study" },
+    { start:"12:10", end:"13:25", title:"معادله و نامعادله و معادله درجه ۲ دهم و یازدهم + تست", subject:"ریاضی (معادله)", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:40", title:"تست فصل ۳ هندسه ۱", subject:"هندسه ۱", type:"study" },
+    { start:"15:55", end:"17:10", title:"هندسه ۳", subject:"هندسه ۳", type:"study" },
+    { start:"17:25", end:"18:40", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"18:55", end:"20:10", title:"دوره و تست فصل ۳ فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"مرور شیمی ۱", subject:"شیمی ۱", type:"study" },
+  ]},
+  { date: "18 شهریور", weekday: "چهارشنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"فصل ۲ شیمی ۱ + تست (حداقل ۱۵۰ تست)", subject:"شیمی ۱", type:"study" },
+    { start:"10:40", end:"11:55", title:"معادله و نامعادله و معادله درجه ۲ دهم و یازدهم + تست", subject:"ریاضی (معادله)", type:"study" },
+    { start:"12:10", end:"13:10", title:"تست فصل ۳ هندسه ۱", subject:"هندسه ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"دوره و تست فصل ۳ فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+    { start:"16:10", end:"17:25", title:"گسسته", subject:"گسسته", type:"study" },
+    { start:"17:40", end:"18:55", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"19:10", end:"20:25", title:"تکمیل تست فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"تکمیل تست ریاضی", subject:"ریاضی (معادله)", type:"study" },
+  ]},
+  { date: "19 شهریور", weekday: "پنجشنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"فصل ۲ شیمی ۱ + تست (حداقل ۱۵۰ تست)", subject:"شیمی ۱", type:"study" },
+    { start:"10:40", end:"11:55", title:"معادله و نامعادله و معادله درجه ۲ دهم و یازدهم + تست", subject:"ریاضی (معادله)", type:"study" },
+    { start:"12:10", end:"13:25", title:"دوره و تست فصل ۳ فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"تست فصل ۴ هندسه ۱", subject:"هندسه ۱", type:"study" },
+    { start:"16:10", end:"17:25", title:"تست فصل ۴ هندسه ۱", subject:"هندسه ۱", type:"study" },
+    { start:"17:40", end:"18:55", title:"فیزیک ۳", subject:"فیزیک ۳", type:"study" },
+    { start:"19:10", end:"20:25", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"مرور فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+  ]},
+  { date: "20 شهریور", weekday: "جمعه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"فصل ۲ شیمی ۱ + تست (حداقل ۱۵۰ تست)", subject:"شیمی ۱", type:"study" },
+    { start:"10:40", end:"11:55", title:"معادله و نامعادله و معادله درجه ۲ دهم و یازدهم + تست", subject:"ریاضی (معادله)", type:"study" },
+    { start:"12:10", end:"13:25", title:"تکمیلی فصل‌های ۳ و ۴ هندسه ۱", subject:"هندسه ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"تکمیلی فصل‌های ۳ و ۴ هندسه ۱", subject:"هندسه ۱", type:"study" },
+    { start:"16:10", end:"17:25", title:"هندسه ۳", subject:"هندسه ۳", type:"study" },
+    { start:"17:40", end:"18:55", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"19:10", end:"20:25", title:"دوره و تست فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"تکمیل تست هندسه ۱", subject:"هندسه ۱", type:"study" },
+  ]},
+  { date: "21 شهریور", weekday: "شنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"مثلثات دهم و یازدهم + تست (حداقل ۱۵۰ تست)", subject:"مثلثات", type:"study" },
+    { start:"10:40", end:"11:55", title:"فصل ۳ شیمی ۱ + تست (حداقل ۱۵۰ تست)", subject:"شیمی ۱", type:"study" },
+    { start:"12:10", end:"13:25", title:"فصل ۴ فیزیک ۱ + تست (حداقل ۵۰ تست)", subject:"فیزیک ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"دوره و تست فصل ۱ هندسه ۲", subject:"هندسه ۲", type:"study" },
+    { start:"16:10", end:"17:25", title:"گسسته", subject:"گسسته", type:"study" },
+    { start:"17:40", end:"18:55", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"19:10", end:"20:25", title:"مثلثات + تست", subject:"مثلثات", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"تکمیل تست شیمی ۱", subject:"شیمی ۱", type:"study" },
+  ]},
+  { date: "22 شهریور", weekday: "یکشنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"مثلثات دهم و یازدهم + تست", subject:"مثلثات", type:"study" },
+    { start:"10:40", end:"11:55", title:"فصل ۳ شیمی ۱ + تست", subject:"شیمی ۱", type:"study" },
+    { start:"12:10", end:"13:25", title:"فصل ۴ فیزیک ۱ + تست", subject:"فیزیک ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"دوره و تست فصل ۱ هندسه ۲", subject:"هندسه ۲", type:"study" },
+    { start:"16:10", end:"17:25", title:"فیزیک ۳", subject:"فیزیک ۳", type:"study" },
+    { start:"17:40", end:"18:55", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"19:10", end:"20:25", title:"مثلثات + تست", subject:"مثلثات", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"مرور فصل ۳ شیمی ۱", subject:"شیمی ۱", type:"study" },
+  ]},
+  { date: "23 شهریور", weekday: "دوشنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"مثلثات دهم و یازدهم + تست", subject:"مثلثات", type:"study" },
+    { start:"10:40", end:"11:55", title:"فصل ۳ شیمی ۱ + تست", subject:"شیمی ۱", type:"study" },
+    { start:"12:10", end:"13:25", title:"فصل ۴ فیزیک ۱ + تست", subject:"فیزیک ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"دوره و تست فصل ۱ هندسه ۲", subject:"هندسه ۲", type:"study" },
+    { start:"16:10", end:"17:25", title:"هندسه ۳", subject:"هندسه ۳", type:"study" },
+    { start:"17:40", end:"18:55", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"19:10", end:"20:25", title:"مثلثات + تست", subject:"مثلثات", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"تکمیل تست فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+  ]},
+  { date: "24 شهریور", weekday: "سه‌شنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"مثلثات دهم و یازدهم + تست", subject:"مثلثات", type:"study" },
+    { start:"10:40", end:"11:55", title:"فصل ۳ شیمی ۱ + تست", subject:"شیمی ۱", type:"study" },
+    { start:"12:10", end:"13:25", title:"فصل ۴ فیزیک ۱ + تست", subject:"فیزیک ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"دوره فصل ۲ هندسه ۲", subject:"هندسه ۲", type:"study" },
+    { start:"16:10", end:"17:25", title:"گسسته", subject:"گسسته", type:"study" },
+    { start:"17:40", end:"18:55", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"19:10", end:"20:25", title:"مثلثات + تست", subject:"مثلثات", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"مرور هندسه ۲", subject:"هندسه ۲", type:"study" },
+  ]},
+  { date: "25 شهریور", weekday: "چهارشنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"مثلثات دهم و یازدهم + تست", subject:"مثلثات", type:"study" },
+    { start:"10:40", end:"11:55", title:"فصل ۳ شیمی ۱ + تست", subject:"شیمی ۱", type:"study" },
+    { start:"12:10", end:"13:25", title:"دوره فصل ۵ فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"دوره فصل ۲ هندسه ۲", subject:"هندسه ۲", type:"study" },
+    { start:"16:10", end:"17:25", title:"فیزیک ۳", subject:"فیزیک ۳", type:"study" },
+    { start:"17:40", end:"18:55", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"19:10", end:"20:25", title:"مثلثات + تست", subject:"مثلثات", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"تکمیل تست شیمی ۱", subject:"شیمی ۱", type:"study" },
+  ]},
+  { date: "26 شهریور", weekday: "پنجشنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"مثلثات دهم و یازدهم + تست", subject:"مثلثات", type:"study" },
+    { start:"10:40", end:"11:55", title:"فصل ۳ شیمی ۱ + تست", subject:"شیمی ۱", type:"study" },
+    { start:"12:10", end:"13:25", title:"دوره فصل ۵ فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"دوره و تست فصل ۳ هندسه ۲", subject:"هندسه ۲", type:"study" },
+    { start:"16:10", end:"17:25", title:"دوره و تست فصل ۳ هندسه ۲", subject:"هندسه ۲", type:"study" },
+    { start:"17:40", end:"18:55", title:"هندسه ۳", subject:"هندسه ۳", type:"study" },
+    { start:"19:10", end:"20:25", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"مرور فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+  ]},
+  { date: "27 شهریور", weekday: "جمعه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"مثلثات دهم و یازدهم + تست", subject:"مثلثات", type:"study" },
+    { start:"10:40", end:"11:55", title:"فصل ۳ شیمی ۱ + تست", subject:"شیمی ۱", type:"study" },
+    { start:"12:10", end:"13:25", title:"تکمیلی تستی فصل‌های ۲ و ۳ هندسه ۲", subject:"هندسه ۲", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"تکمیلی تستی فصل‌های ۲ و ۳ هندسه ۲", subject:"هندسه ۲", type:"study" },
+    { start:"16:10", end:"17:25", title:"گسسته", subject:"گسسته", type:"study" },
+    { start:"17:40", end:"18:55", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"19:10", end:"20:25", title:"دوره فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"تکمیل تست هندسه ۲", subject:"هندسه ۲", type:"study" },
+  ]},
+  { date: "28 شهریور", weekday: "شنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"تابع دهم و یازدهم + نمایی و لگاریتمی + تست", subject:"تابع", type:"study" },
+    { start:"10:40", end:"11:55", title:"فصل ۱ شیمی ۲ + تست (حداقل ۱۵۰ تست)", subject:"شیمی ۲", type:"study" },
+    { start:"12:10", end:"13:25", title:"تست فصل ۵ فیزیک ۱ / تکمیل تست فصل ۴", subject:"فیزیک ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"فصل ۱ آمار و احتمال + تست", subject:"آمار و احتمال", type:"study" },
+    { start:"16:10", end:"17:25", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"17:40", end:"18:55", title:"فیزیک ۳", subject:"فیزیک ۳", type:"study" },
+    { start:"19:10", end:"20:25", title:"تابع + تست", subject:"تابع", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"تکمیل تست شیمی ۲", subject:"شیمی ۲", type:"study" },
+  ]},
+  { date: "29 شهریور", weekday: "یکشنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"تابع دهم و یازدهم + نمایی و لگاریتمی + تست", subject:"تابع", type:"study" },
+    { start:"10:40", end:"11:55", title:"فصل ۱ شیمی ۲ + تست (حداقل ۱۵۰ تست)", subject:"شیمی ۲", type:"study" },
+    { start:"12:10", end:"13:25", title:"تست فصل ۵ فیزیک ۱ / تکمیل تست فصل ۴", subject:"فیزیک ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"احتمال + تست (بخش اول)", subject:"آمار و احتمال", type:"study" },
+    { start:"16:10", end:"17:25", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"17:40", end:"18:55", title:"هندسه ۳", subject:"هندسه ۳", type:"study" },
+    { start:"19:10", end:"20:25", title:"تابع + تست", subject:"تابع", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"تکمیل تست شیمی ۲", subject:"شیمی ۲", type:"study" },
+  ]},
+  { date: "30 شهریور", weekday: "دوشنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"تابع دهم و یازدهم + نمایی و لگاریتمی + تست", subject:"تابع", type:"study" },
+    { start:"10:40", end:"11:55", title:"فصل ۱ شیمی ۲ + تست (حداقل ۱۵۰ تست)", subject:"شیمی ۲", type:"study" },
+    { start:"12:10", end:"13:25", title:"تکمیل تست فصل‌های ۲، ۴ و ۵ فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"تکمیلی آمار و احتمال", subject:"آمار و احتمال", type:"study" },
+    { start:"16:10", end:"17:25", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"17:40", end:"18:55", title:"گسسته", subject:"گسسته", type:"study" },
+    { start:"19:10", end:"20:25", title:"تابع + تست", subject:"تابع", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"مرور فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+  ]},
+  { date: "31 شهریور", weekday: "سه‌شنبه", activities: [
+    { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
+    { start:"09:10", end:"10:25", title:"تابع دهم و یازدهم + نمایی و لگاریتمی + تست", subject:"تابع", type:"study" },
+    { start:"10:40", end:"11:55", title:"فصل ۱ شیمی ۲ + تست (حداقل ۱۵۰ تست)", subject:"شیمی ۲", type:"study" },
+    { start:"12:10", end:"13:25", title:"تکمیل تست فصل‌های ۲، ۴ و ۵ فیزیک ۱", subject:"فیزیک ۱", type:"study" },
+    { start:"14:00", end:"14:40", title:"ناهار", type:"meal" },
+    { start:"14:40", end:"15:55", title:"احتمال + تست", subject:"آمار و احتمال", type:"study" },
+    { start:"16:10", end:"17:25", title:"عمومی پایه", subject:"عمومی پایه", type:"study" },
+    { start:"17:40", end:"18:55", title:"فیزیک ۳", subject:"فیزیک ۳", type:"study" },
+    { start:"19:10", end:"20:25", title:"هندسه ۳ + تست", subject:"هندسه ۳", type:"study" },
+    { start:"21:00", end:"21:40", title:"شام", type:"meal" },
+    { start:"21:40", end:"22:55", title:"جمع‌بندی و تست ترکیبی", subject:"جمع‌بندی", type:"study" },
+  ]},
 ];
 
+/* --------------------------------------------------------------------------
+   2) کمک‌تابع‌های پایه: تبدیل اعداد به فارسی، محاسبه مدت زمان، ساخت شناسه
+   -------------------------------------------------------------------------- */
 
-/* =====================================================
-   ۲. توابع کمکی زمان و دسته‌بندی درس
-   ===================================================== */
-
-function toEnglishDigits(str) {
-    const persian = ["۰","۱","۲","۳","۴","۵","۶","۷","۸","۹"];
-    return String(str).replace(/[۰-۹]/g, d => String(persian.indexOf(d)));
+// تبدیل ارقام لاتین به ارقام فارسی برای نمایش زیبا در رابط کاربری
+const FA_DIGITS = ["۰","۱","۲","۳","۴","۵","۶","۷","۸","۹"];
+function toFaDigits(input) {
+  return String(input).replace(/[0-9]/g, (d) => FA_DIGITS[Number(d)]);
 }
 
-function parseClock(t) {
-    const clean = toEnglishDigits(t.trim());
-    const parts = clean.split(":");
-    const h = parseInt(parts[0], 10) || 0;
-    const m = parseInt(parts[1], 10) || 0;
-    return h * 60 + m;
+// محاسبه مدت زمان برنامه‌ریزی‌شده یک فعالیت بر حسب دقیقه، از روی start/end
+function plannedMinutes(activity) {
+  const [sh, sm] = activity.start.split(":").map(Number);
+  const [eh, em] = activity.end.split(":").map(Number);
+  return (eh * 60 + em) - (sh * 60 + sm);
 }
 
-function getPlannedMinutes(timeRange) {
-    const parts = timeRange.split("تا").map(s => s.trim());
-    if (parts.length !== 2) return 0;
-    const start = parseClock(parts[0]);
-    const end = parseClock(parts[1]);
-    return Math.max(0, end - start);
+// شناسه یکتا برای هر فعالیت: بر اساس اندیس روز و اندیس فعالیت
+// (پایدار در هر بار بارگذاری صفحه، چون بر پایه آرایه ثابت SCHEDULE است)
+function activityId(dayIndex, actIndex) {
+  return `day${dayIndex}_act${actIndex}`;
 }
 
-function getSubject(title) {
-    const rules = [
-        ["جمع‌بندی", "جمع‌بندی و مرور کلی"],
-        ["آمار", "آمار و احتمال"],
-        ["احتمال", "آمار و احتمال"],
-        ["فیزیک ۱", "فیزیک ۱"],
-        ["فیزیک ۳", "فیزیک ۳"],
-        ["شیمی ۱", "شیمی ۱"],
-        ["شیمی ۲", "شیمی ۲"],
-        ["هندسه ۱", "هندسه ۱"],
-        ["هندسه ۲", "هندسه ۲"],
-        ["هندسه ۳", "هندسه ۳"],
-        ["گسسته", "گسسته"],
-        ["عمومی پایه", "عمومی پایه"]
-    ];
-    for (const [key, label] of rules) {
-        if (title.includes(key)) return label;
-    }
-    return "ریاضی (دهم و یازدهم)";
+/* --------------------------------------------------------------------------
+   3) لایه ذخیره‌سازی (localStorage)
+   ساختار ذخیره: یک آبجکت با کلید شناسه فعالیت و مقدار رکورد ثبت‌شده:
+   {
+     "day0_act1": {
+        status: "done" | "skipped",
+        studyMinutes: 60,
+        testCount: 80,
+        percent: 80,
+        recordedAt: "ISO date string"
+     }, ...
+   }
+   -------------------------------------------------------------------------- */
+const STORAGE_KEY = "studyTrackerRecords_v1";
+
+function loadRecords() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    console.error("خطا در خواندن اطلاعات ذخیره‌شده:", e);
+    return {};
+  }
 }
 
-
-/* =====================================================
-   ۳. ذخیره‌سازی پیشرفت
-   ===================================================== */
-
-const STORAGE_KEY = "studyFlowProgressV2";
-
-let savedProgress = loadProgress();
-
-function loadProgress() {
-    try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    } catch (e) {
-        return {};
-    }
+function saveRecords(records) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  } catch (e) {
+    console.error("خطا در ذخیره‌سازی اطلاعات:", e);
+  }
 }
 
-function persistProgress() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(savedProgress));
-}
+// حافظه در حال اجرا؛ همیشه با storage همگام نگه داشته می‌شود
+let RECORDS = loadRecords();
 
+/* --------------------------------------------------------------------------
+   4) محاسبات آماری
+   -------------------------------------------------------------------------- */
 
-/* =====================================================
-   ۴. عناصر HTML
-   ===================================================== */
-
-const daysContainer      = document.getElementById("daysContainer");
-const advisorDays        = document.getElementById("advisorDays");
-const totalDays          = document.getElementById("totalDays");
-const completedDays      = document.getElementById("completedDays");
-const totalStudy         = document.getElementById("totalStudy");
-const progressBar        = document.getElementById("progressBar");
-const progressPercent    = document.getElementById("progressPercent");
-
-const advisorProgress    = document.getElementById("advisorProgress");
-const advisorCompleted   = document.getElementById("advisorCompleted");
-const advisorTotal       = document.getElementById("advisorTotal");
-const advisorHours       = document.getElementById("advisorHours");
-const advisorTestsTotal  = document.getElementById("advisorTestsTotal");
-const circleValue        = document.getElementById("circleValue");
-const subjectReport      = document.getElementById("subjectReport");
-
-const toast               = document.getElementById("toast");
-
-const backupBtn            = document.getElementById("backupBtn");
-const restoreInput         = document.getElementById("restoreInput");
-const pdfBtn                = document.getElementById("pdfBtn");
-const printReport           = document.getElementById("printReport");
-
-const registerModal    = document.getElementById("registerModal");
-const modalTitle        = document.getElementById("modalTitle");
-const studiedBtn         = document.getElementById("studiedBtn");
-const notStudiedBtn      = document.getElementById("notStudiedBtn");
-const studyDetails       = document.getElementById("studyDetails");
-const minutesInput       = document.getElementById("minutesInput");
-const testsInput         = document.getElementById("testsInput");
-const confirmStudyBtn    = document.getElementById("confirmStudyBtn");
-const closeModalBtn      = document.getElementById("closeModalBtn");
-
-const themeBtn = document.getElementById("themeBtn");
-
-
-/* =====================================================
-   ۵. ساخت روزها (کشویی)
-   ===================================================== */
-
-function renderDays() {
-
-    daysContainer.innerHTML = "";
-
-    studyPlan.forEach((day, dayIndex) => {
-
-        const card = document.createElement("article");
-        card.className = "day-card";
-
-        let lessonTotal = 0;
-        let lessonStudied = 0;
-
-        day.items.forEach((it, idx) => {
-            if (it.type === "lesson") {
-                lessonTotal++;
-                if (savedProgress[`${dayIndex}-${idx}`]?.status === "studied") {
-                    lessonStudied++;
-                }
-            }
-        });
-
-        const dayPercent = lessonTotal
-            ? Math.round((lessonStudied / lessonTotal) * 100)
-            : 0;
-
-        card.innerHTML = `
-
-            <button class="day-header" type="button" aria-expanded="false">
-
-                <div class="day-number">${dayIndex + 1}</div>
-
-                <div class="day-info">
-                    <strong class="neon-text">${day.day}</strong>
-                    <small>${day.date}</small>
-                </div>
-
-                <div class="day-status">
-                    <span class="day-percent ${dayPercent === 100 ? "full" : ""}">${dayPercent}%</span>
-                    <span class="day-count">${lessonTotal} درس</span>
-                </div>
-
-                <div class="arrow">⌄</div>
-
-            </button>
-
-            <div class="day-content">
-                <div class="day-inner">
-                    ${day.items.map((item, itemIndex) => renderItem(dayIndex, item, itemIndex)).join("")}
-                </div>
-            </div>
-        `;
-
-        const header = card.querySelector(".day-header");
-        header.addEventListener("click", () => {
-            const isOpen = card.classList.toggle("open");
-            header.setAttribute("aria-expanded", isOpen);
-        });
-
-        card.addEventListener("click", handleCardClick);
-
-        daysContainer.appendChild(card);
+// همه فعالیت‌های درسی (غیر از وعده‌های غذایی) را با متادیتای روز برمی‌گرداند
+function allStudyActivities() {
+  const list = [];
+  SCHEDULE.forEach((day, dIdx) => {
+    day.activities.forEach((act, aIdx) => {
+      if (act.type === "study") {
+        list.push({ ...act, id: activityId(dIdx, aIdx), dayIndex: dIdx, date: day.date, weekday: day.weekday, planned: plannedMinutes(act) });
+      }
     });
+  });
+  return list;
 }
 
+// خلاصه آماری کلی برنامه (برای داشبورد دانش‌آموز و گزارش کلی مشاور)
+function computeOverallStats() {
+  const all = allStudyActivities();
+  let totalPlanned = 0, totalStudied = 0, totalTests = 0;
+  let doneCount = 0, skippedCount = 0, unrecordedCount = 0;
 
-/* =====================================================
-   ۶. ساخت هر ردیف (درس یا وعده‌ی غذایی)
-   ===================================================== */
-
-function renderItem(dayIndex, item, itemIndex) {
-
-    if (item.type === "meal") {
-        return `
-            <div class="meal-row">
-                <div class="meal-icon">🍽️</div>
-                <div class="meal-info">
-                    <strong>${item.title}</strong>
-                    <small>${item.time}</small>
-                </div>
-                <span class="meal-tag">فقط نمایشی</span>
-            </div>
-        `;
+  all.forEach((act) => {
+    totalPlanned += act.planned;
+    const rec = RECORDS[act.id];
+    if (!rec) {
+      unrecordedCount++;
+    } else if (rec.status === "done") {
+      doneCount++;
+      totalStudied += rec.studyMinutes || 0;
+      totalTests += rec.testCount || 0;
+    } else if (rec.status === "skipped") {
+      skippedCount++;
     }
+  });
 
-    const key = `${dayIndex}-${itemIndex}`;
-    const progress = savedProgress[key];
-    const planned = getPlannedMinutes(item.time);
+  const overallPercent = totalPlanned > 0 ? Math.min(100, Math.round((totalStudied / totalPlanned) * 100)) : 0;
 
-    let statusHtml = `<span class="status-pending">هنوز ثبت نشده</span>`;
-    let rowClass = "";
+  return { totalPlanned, totalStudied, totalTests, doneCount, skippedCount, unrecordedCount, overallPercent, totalActivities: all.length };
+}
 
-    if (progress && progress.status === "studied") {
-        statusHtml = `<span class="status-done">✅ ${progress.minutes} دقیقه · ${progress.tests} تست</span>`;
-        rowClass = "is-studied";
-    } else if (progress && progress.status === "not_studied") {
-        statusHtml = `<span class="status-skip">❌ خونده نشد</span>`;
-        rowClass = "is-skipped";
+// خلاصه آمار «امروز» (آخرین روزی که حداقل یک ثبت در آن انجام شده؛
+// در غیر این صورت اولین روز برنامه به عنوان روز جاری نمایش داده می‌شود)
+function computeTodayStats() {
+  const all = allStudyActivities();
+  // تشخیص «امروز»: جدیدترین روزی که رکورد ثبت‌شده دارد؛ وگرنه روز اول
+  let todayIndex = 0;
+  let latestTime = 0;
+  all.forEach((act) => {
+    const rec = RECORDS[act.id];
+    if (rec && rec.recordedAt) {
+      const t = new Date(rec.recordedAt).getTime();
+      if (t >= latestTime) { latestTime = t; todayIndex = act.dayIndex; }
     }
+  });
 
-    return `
-        <div class="lesson-row ${rowClass}">
-            <div class="lesson-info">
-                <strong>${item.title}</strong>
-                <small>${item.time} · ${planned} دقیقه برنامه</small>
-                <div class="lesson-result">${statusHtml}</div>
-            </div>
-            <button class="btn-register" data-day="${dayIndex}" data-item="${itemIndex}" type="button">
-                ثبت
-            </button>
-        </div>
+  const dayActs = all.filter((a) => a.dayIndex === todayIndex);
+  let studied = 0, tests = 0, done = 0, skipped = 0, planned = 0;
+  dayActs.forEach((act) => {
+    planned += act.planned;
+    const rec = RECORDS[act.id];
+    if (rec && rec.status === "done") {
+      done++; studied += rec.studyMinutes || 0; tests += rec.testCount || 0;
+    } else if (rec && rec.status === "skipped") {
+      skipped++;
+    }
+  });
+  const percent = planned > 0 ? Math.min(100, Math.round((studied / planned) * 100)) : 0;
+  return { dayIndex: todayIndex, date: SCHEDULE[todayIndex].date, weekday: SCHEDULE[todayIndex].weekday, studied, tests, done, skipped, percent, totalActs: dayActs.length };
+}
+
+// گزارش روزانه کامل (برای پنل مشاور)
+function computeDailyReports() {
+  return SCHEDULE.map((day, dIdx) => {
+    const studyActs = day.activities.filter((a) => a.type === "study");
+    let planned = 0, studied = 0, tests = 0, done = 0, skipped = 0, unrecorded = 0;
+    studyActs.forEach((act, i) => {
+      const aIdx = day.activities.indexOf(act);
+      const id = activityId(dIdx, aIdx);
+      planned += plannedMinutes(act);
+      const rec = RECORDS[id];
+      if (!rec) { unrecorded++; }
+      else if (rec.status === "done") { done++; studied += rec.studyMinutes || 0; tests += rec.testCount || 0; }
+      else if (rec.status === "skipped") { skipped++; }
+    });
+    const percent = planned > 0 ? Math.min(100, Math.round((studied / planned) * 100)) : 0;
+    return { date: day.date, weekday: day.weekday, planned, studied, tests, percent, done, skipped, unrecorded, total: studyActs.length };
+  });
+}
+
+// گزارش درسی: تجمیع بر اساس نام درس (subject)
+function computeSubjectReports() {
+  const all = allStudyActivities();
+  const map = {};
+  all.forEach((act) => {
+    if (!map[act.subject]) {
+      map[act.subject] = { subject: act.subject, planned: 0, studied: 0, tests: 0, done: 0, skipped: 0, unrecorded: 0, total: 0 };
+    }
+    const s = map[act.subject];
+    s.total++;
+    s.planned += act.planned;
+    const rec = RECORDS[act.id];
+    if (!rec) { s.unrecorded++; }
+    else if (rec.status === "done") { s.done++; s.studied += rec.studyMinutes || 0; s.tests += rec.testCount || 0; }
+    else if (rec.status === "skipped") { s.skipped++; }
+  });
+  return Object.values(map).map((s) => ({ ...s, percent: s.planned > 0 ? Math.min(100, Math.round((s.studied / s.planned) * 100)) : 0 }));
+}
+
+/* --------------------------------------------------------------------------
+   5) رندر پنل دانش‌آموز: آکاردئون روزها + کارت‌های فعالیت
+   -------------------------------------------------------------------------- */
+
+// وضعیت باز/بسته بودن آکاردئون هر روز (فقط در حافظه؛ نیازی به ذخیره‌سازی نیست)
+const openDays = new Set();
+
+function renderStudentPanel() {
+  const container = document.getElementById("daysContainer");
+  container.innerHTML = "";
+
+  SCHEDULE.forEach((day, dIdx) => {
+    const dayCard = document.createElement("div");
+    dayCard.className = "day-card glass";
+
+    const dayStats = dailyQuickStats(dIdx);
+
+    const header = document.createElement("button");
+    header.className = "day-header";
+    header.setAttribute("type", "button");
+    header.setAttribute("aria-expanded", openDays.has(dIdx) ? "true" : "false");
+    header.innerHTML = `
+      <div class="day-header-main">
+        <span class="day-title">${day.weekday} ${toFaDigits(day.date)}</span>
+        <span class="day-sub">${toFaDigits(dayStats.done)} از ${toFaDigits(dayStats.total)} فعالیت ثبت شده</span>
+      </div>
+      <div class="day-header-side">
+        <span class="mini-percent ${percentClass(dayStats.percent)}">${toFaDigits(dayStats.percent)}٪</span>
+        <span class="chevron">⌄</span>
+      </div>
     `;
-}
 
+    const body = document.createElement("div");
+    body.className = "day-body";
+    if (openDays.has(dIdx)) body.classList.add("open");
 
-/* =====================================================
-   ۷. باز کردن مودال ثبت با کلیک روی دکمه
-   ===================================================== */
-
-function handleCardClick(event) {
-    const btn = event.target.closest(".btn-register");
-    if (!btn) return;
-
-    const dayIndex = Number(btn.dataset.day);
-    const itemIndex = Number(btn.dataset.item);
-    openRegisterModal(dayIndex, itemIndex);
-}
-
-
-/* =====================================================
-   ۸. مودال ثبت وضعیت درس
-   ===================================================== */
-
-let currentDayIndex = null;
-let currentItemIndex = null;
-
-function openRegisterModal(dayIndex, itemIndex) {
-
-    currentDayIndex = dayIndex;
-    currentItemIndex = itemIndex;
-
-    const item = studyPlan[dayIndex].items[itemIndex];
-    modalTitle.textContent = item.title;
-
-    studyDetails.classList.add("hidden");
-    minutesInput.value = "";
-    testsInput.value = "";
-
-    const key = `${dayIndex}-${itemIndex}`;
-    const progress = savedProgress[key];
-
-    if (progress && progress.status === "studied") {
-        studyDetails.classList.remove("hidden");
-        minutesInput.value = progress.minutes;
-        testsInput.value = progress.tests;
-    }
-
-    registerModal.classList.add("show");
-}
-
-function closeRegisterModal() {
-    registerModal.classList.remove("show");
-    currentDayIndex = null;
-    currentItemIndex = null;
-}
-
-studiedBtn.addEventListener("click", () => {
-    studyDetails.classList.remove("hidden");
-    minutesInput.focus();
-});
-
-notStudiedBtn.addEventListener("click", () => {
-    saveRegistration("not_studied", 0, 0);
-});
-
-confirmStudyBtn.addEventListener("click", () => {
-    const minutes = Math.max(0, parseInt(minutesInput.value, 10) || 0);
-    const tests = Math.max(0, parseInt(testsInput.value, 10) || 0);
-    saveRegistration("studied", minutes, tests);
-});
-
-closeModalBtn.addEventListener("click", closeRegisterModal);
-
-registerModal.addEventListener("click", (event) => {
-    if (event.target === registerModal) {
-        closeRegisterModal();
-    }
-});
-
-function saveRegistration(status, minutes, tests) {
-
-    const key = `${currentDayIndex}-${currentItemIndex}`;
-
-    savedProgress[key] = { status, minutes, tests };
-    persistProgress();
-
-    closeRegisterModal();
-
-    renderDays();
-    updateStatistics();
-
-    showToast(
-        status === "studied"
-            ? "ثبت شد ✓ آفرین!"
-            : "ثبت شد، دفعه‌ی بعد بخون 💪"
-    );
-}
-
-
-/* =====================================================
-   ۹. محاسبه‌ی آمار کلی
-   ===================================================== */
-
-function getAllLessons() {
-    const lessons = [];
-    studyPlan.forEach((day, dayIndex) => {
-        day.items.forEach((item, itemIndex) => {
-            if (item.type === "lesson") {
-                lessons.push({ dayIndex, itemIndex, item, key: `${dayIndex}-${itemIndex}` });
-            }
-        });
-    });
-    return lessons;
-}
-
-function calculateStatistics() {
-
-    const lessons = getAllLessons();
-
-    let studiedCount = 0;
-    let notStudiedCount = 0;
-    let totalMinutes = 0;
-    let totalTests = 0;
-    let totalPlannedMinutes = 0;
-
-    const perDay = studyPlan.map(() => ({ studied: 0, total: 0, minutes: 0, planned: 0, tests: 0 }));
-    const perSubject = {};
-
-    lessons.forEach(({ dayIndex, item, key }) => {
-
-        const planned = getPlannedMinutes(item.time);
-        totalPlannedMinutes += planned;
-
-        perDay[dayIndex].total++;
-        perDay[dayIndex].planned += planned;
-
-        const subject = getSubject(item.title);
-
-        if (!perSubject[subject]) {
-            perSubject[subject] = { planned: 0, minutes: 0, tests: 0, studied: 0, total: 0 };
-        }
-
-        perSubject[subject].total++;
-        perSubject[subject].planned += planned;
-
-        const progress = savedProgress[key];
-
-        if (progress && progress.status === "studied") {
-            studiedCount++;
-            totalMinutes += progress.minutes;
-            totalTests += progress.tests;
-
-            perDay[dayIndex].studied++;
-            perDay[dayIndex].minutes += progress.minutes;
-            perDay[dayIndex].tests += progress.tests;
-
-            perSubject[subject].studied++;
-            perSubject[subject].minutes += progress.minutes;
-            perSubject[subject].tests += progress.tests;
-
-        } else if (progress && progress.status === "not_studied") {
-            notStudiedCount++;
-        }
+    day.activities.forEach((act, aIdx) => {
+      body.appendChild(renderActivityCard(day, dIdx, act, aIdx));
     });
 
-    return {
-        totalLessons: lessons.length,
-        studiedCount,
-        notStudiedCount,
-        totalMinutes,
-        totalTests,
-        totalPlannedMinutes,
-        perDay,
-        perSubject
-    };
-}
-
-
-/* =====================================================
-   ۱۰. به‌روزرسانی آمار در صفحه
-   ===================================================== */
-
-function updateStatistics() {
-
-    const stats = calculateStatistics();
-
-    const percent = stats.totalLessons === 0
-        ? 0
-        : Math.round((stats.studiedCount / stats.totalLessons) * 100);
-
-    const hours = Math.floor(stats.totalMinutes / 60);
-    const minsRemainder = stats.totalMinutes % 60;
-
-    const completedDaysCount = stats.perDay.filter(
-        d => d.total > 0 && d.studied === d.total
-    ).length;
-
-    totalDays.textContent = studyPlan.length;
-    completedDays.textContent = completedDaysCount;
-    totalStudy.textContent = `${hours}h ${minsRemainder}m`;
-
-    progressPercent.textContent = `${percent}%`;
-    progressBar.style.width = `${percent}%`;
-
-    advisorProgress.textContent = `${percent}%`;
-    advisorCompleted.textContent = completedDaysCount;
-    advisorTotal.textContent = studyPlan.length;
-    advisorHours.textContent = `${hours} ساعت و ${minsRemainder} دقیقه`;
-    advisorTestsTotal.textContent = stats.totalTests;
-    circleValue.style.width = `${percent}%`;
-
-    renderAdvisorDays(stats);
-    renderSubjectReport(stats);
-}
-
-
-/* =====================================================
-   ۱۱. گزارش روزهای مشاور
-   ===================================================== */
-
-function renderAdvisorDays(stats) {
-
-    advisorDays.innerHTML = "";
-
-    studyPlan.forEach((day, dayIndex) => {
-
-        const d = stats.perDay[dayIndex];
-        const percent = d.total ? Math.round((d.studied / d.total) * 100) : 0;
-
-        const statusClass = percent === 100 ? "done" : percent === 0 ? "not-done" : "partial";
-
-        const item = document.createElement("div");
-        item.className = "advisor-day";
-
-        item.innerHTML = `
-            <div class="advisor-day-number">${dayIndex + 1}</div>
-
-            <div class="advisor-day-info">
-                <strong>${day.day}</strong>
-                <small>${day.date} · ${d.minutes} از ${d.planned} دقیقه · ${d.tests} تست</small>
-            </div>
-
-            <div class="${statusClass}">${percent}%</div>
-        `;
-
-        advisorDays.appendChild(item);
+    header.addEventListener("click", () => {
+      const isOpen = body.classList.toggle("open");
+      header.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      if (isOpen) openDays.add(dIdx); else openDays.delete(dIdx);
     });
+
+    dayCard.appendChild(header);
+    dayCard.appendChild(body);
+    container.appendChild(dayCard);
+  });
 }
 
-
-/* =====================================================
-   ۱۲. گزارش بر اساس درس
-   ===================================================== */
-
-function renderSubjectReport(stats) {
-
-    subjectReport.innerHTML = "";
-
-    Object.entries(stats.perSubject).forEach(([subject, data]) => {
-
-        const percent = data.total ? Math.round((data.studied / data.total) * 100) : 0;
-
-        const row = document.createElement("div");
-        row.className = "subject-row";
-
-        row.innerHTML = `
-            <div class="subject-top">
-                <span class="subject-name">${subject}</span>
-                <span class="subject-percent">${percent}%</span>
-            </div>
-
-            <div class="subject-bar-wrap">
-                <div class="subject-bar" style="width:${percent}%"></div>
-            </div>
-
-            <div class="subject-meta">
-                ${data.minutes} از ${data.planned} دقیقه مطالعه · ${data.tests} تست زده شده
-            </div>
-        `;
-
-        subjectReport.appendChild(row);
-    });
+function dailyQuickStats(dIdx) {
+  const day = SCHEDULE[dIdx];
+  const studyActs = day.activities.filter((a) => a.type === "study");
+  let done = 0, studied = 0, planned = 0;
+  studyActs.forEach((act) => {
+    const aIdx = day.activities.indexOf(act);
+    const id = activityId(dIdx, aIdx);
+    planned += plannedMinutes(act);
+    const rec = RECORDS[id];
+    if (rec && rec.status === "done") { done++; studied += rec.studyMinutes || 0; }
+  });
+  const percent = planned > 0 ? Math.min(100, Math.round((studied / planned) * 100)) : 0;
+  return { done, total: studyActs.length, percent };
 }
 
-
-/* =====================================================
-   ۱۳. Toast
-   ===================================================== */
-
-let toastTimer;
-
-function showToast(message) {
-
-    toast.querySelector("p").textContent = message;
-    toast.classList.add("show");
-
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => {
-        toast.classList.remove("show");
-    }, 1800);
+function percentClass(p) {
+  if (p >= 80) return "pct-good";
+  if (p >= 40) return "pct-mid";
+  return "pct-low";
 }
 
+function renderActivityCard(day, dIdx, act, aIdx) {
+  const card = document.createElement("div");
 
-/* =====================================================
-   ۱۴. تب‌های برنامه
-   ===================================================== */
-
-document.querySelectorAll(".tab").forEach(tab => {
-
-    tab.addEventListener("click", () => {
-
-        const pageName = tab.dataset.page;
-
-        document.querySelectorAll(".tab").forEach(item => item.classList.remove("active"));
-        document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
-
-        tab.classList.add("active");
-        document.getElementById(pageName).classList.add("active");
-    });
-});
-
-
-/* =====================================================
-   ۱۵. دکمه‌ی تغییر ظاهر
-   ===================================================== */
-
-themeBtn.addEventListener("click", () => {
-
-    document.body.classList.toggle("light-mode");
-
-    themeBtn.textContent = document.body.classList.contains("light-mode")
-        ? "🌙"
-        : "☀";
-});
-
-
-/* =====================================================
-   ۱۶. پشتیبان‌گیری و بازیابی اطلاعات
-   ===================================================== */
-
-backupBtn.addEventListener("click", () => {
-
-    const data = {
-        app: "StudyFlow",
-        exportedAt: new Date().toISOString(),
-        progress: savedProgress
-    };
-
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-
-    const now = new Date();
-    const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `studyflow-backup-${dateStr}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    URL.revokeObjectURL(url);
-
-    showToast("فایل پشتیبان دانلود شد ✓");
-});
-
-restoreInput.addEventListener("change", (event) => {
-
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = () => {
-        try {
-            const parsed = JSON.parse(reader.result);
-
-            const incoming = (parsed && typeof parsed === "object" && parsed.progress)
-                ? parsed.progress
-                : parsed;
-
-            if (typeof incoming !== "object" || incoming === null) {
-                throw new Error("invalid backup file");
-            }
-
-            savedProgress = incoming;
-            persistProgress();
-
-            renderDays();
-            updateStatistics();
-
-            showToast("بازیابی اطلاعات انجام شد ✓");
-
-        } catch (e) {
-            showToast("فایل پشتیبان معتبر نیست ✗");
-        }
-
-        restoreInput.value = "";
-    };
-
-    reader.readAsText(file);
-});
-
-
-/* =====================================================
-   ۱۷. خروجی PDF (چاپ گزارش با تم اختصاصی)
-   ===================================================== */
-
-pdfBtn.addEventListener("click", () => {
-
-    buildPrintReport();
-
-    const originalTitle = document.title;
-    document.title = "گزارش-مطالعاتی-StudyFlow";
-
-    window.print();
-
-    setTimeout(() => {
-        document.title = originalTitle;
-    }, 500);
-});
-
-function buildPrintReport() {
-
-    const stats = calculateStatistics();
-
-    const percent = stats.totalLessons === 0
-        ? 0
-        : Math.round((stats.studiedCount / stats.totalLessons) * 100);
-
-    const hours = Math.floor(stats.totalMinutes / 60);
-    const mins = stats.totalMinutes % 60;
-
-    const completedDaysCount = stats.perDay.filter(
-        d => d.total > 0 && d.studied === d.total
-    ).length;
-
-    const subjectRows = Object.entries(stats.perSubject).map(([subject, data]) => {
-        const p = data.total ? Math.round((data.studied / data.total) * 100) : 0;
-        return `
-            <tr>
-                <td>${subject}</td>
-                <td>${p}%</td>
-                <td>${data.minutes} از ${data.planned} دقیقه</td>
-                <td>${data.tests}</td>
-            </tr>
-        `;
-    }).join("");
-
-    const dayRows = studyPlan.map((day, dayIndex) => {
-        const d = stats.perDay[dayIndex];
-        const p = d.total ? Math.round((d.studied / d.total) * 100) : 0;
-        return `
-            <tr>
-                <td>${day.day} ${day.date}</td>
-                <td>${p}%</td>
-                <td>${d.minutes} از ${d.planned} دقیقه</td>
-                <td>${d.tests}</td>
-            </tr>
-        `;
-    }).join("");
-
-    printReport.innerHTML = `
-        <div class="print-header">
-            <div class="print-brand">⚡ StudyFlow</div>
-            <h1>گزارش مطالعاتی</h1>
-            <p>تاریخ خروجی: ${new Date().toLocaleDateString("fa-IR")}</p>
-        </div>
-
-        <div class="print-summary">
-            <div><span>درصد کل پیشرفت</span><strong>${percent}%</strong></div>
-            <div><span>روزهای کامل شده</span><strong>${completedDaysCount} از ${studyPlan.length}</strong></div>
-            <div><span>زمان مطالعه</span><strong>${hours} ساعت و ${mins} دقیقه</strong></div>
-            <div><span>تعداد کل تست</span><strong>${stats.totalTests}</strong></div>
-        </div>
-
-        <h2>گزارش بر اساس درس</h2>
-        <table>
-            <thead><tr><th>درس</th><th>درصد</th><th>زمان مطالعه</th><th>تعداد تست</th></tr></thead>
-            <tbody>${subjectRows}</tbody>
-        </table>
-
-        <h2>گزارش بر اساس روز</h2>
-        <table>
-            <thead><tr><th>روز</th><th>درصد</th><th>زمان مطالعه</th><th>تعداد تست</th></tr></thead>
-            <tbody>${dayRows}</tbody>
-        </table>
+  if (act.type === "meal") {
+    card.className = "activity-card meal-card";
+    card.innerHTML = `
+      <div class="activity-time">${toFaDigits(act.start)} - ${toFaDigits(act.end)}</div>
+      <div class="activity-main">
+        <span class="meal-icon">🍽️</span>
+        <span class="activity-title">${act.title}</span>
+      </div>
     `;
+    return card;
+  }
+
+  const id = activityId(dIdx, aIdx);
+  const rec = RECORDS[id];
+  const planned = plannedMinutes(act);
+
+  let statusBadge = `<span class="status-badge status-none">ثبت‌نشده</span>`;
+  let progressHtml = "";
+  if (rec && rec.status === "done") {
+    statusBadge = `<span class="status-badge status-done">خواندم</span>`;
+    progressHtml = `
+      <div class="progress-wrap">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill ${percentClass(rec.percent)}" style="width:${rec.percent}%"></div>
+        </div>
+        <span class="progress-label ${percentClass(rec.percent)}">${toFaDigits(rec.percent)}٪</span>
+      </div>
+      <div class="activity-detail-row">
+        <span>مدت مطالعه: ${toFaDigits(rec.studyMinutes)} دقیقه</span>
+        <span>تعداد تست: ${toFaDigits(rec.testCount)}</span>
+      </div>
+    `;
+  } else if (rec && rec.status === "skipped") {
+    statusBadge = `<span class="status-badge status-skip">نخواندم</span>`;
+  }
+
+  card.className = "activity-card study-card";
+  card.innerHTML = `
+    <div class="activity-time">${toFaDigits(act.start)} - ${toFaDigits(act.end)}
+      <span class="planned-min">(${toFaDigits(planned)} دقیقه برنامه)</span>
+    </div>
+    <div class="activity-main">
+      <div class="activity-text">
+        <span class="activity-subject">${act.subject}</span>
+        <span class="activity-title">${act.title}</span>
+      </div>
+      ${statusBadge}
+    </div>
+    ${progressHtml}
+    <button class="record-btn" type="button">ثبت</button>
+  `;
+
+  card.querySelector(".record-btn").addEventListener("click", () => openRecordModal(id, act, day));
+  return card;
 }
 
+/* --------------------------------------------------------------------------
+   6) مودال ثبت وضعیت فعالیت
+   -------------------------------------------------------------------------- */
 
-/* =====================================================
-   ۱۸. شروع برنامه
-   ===================================================== */
+function openRecordModal(recId, act, day) {
+  const modal = document.getElementById("recordModal");
+  const modalTitle = document.getElementById("modalActivityTitle");
+  const modalMeta = document.getElementById("modalActivityMeta");
+  const choiceStep = document.getElementById("modalChoiceStep");
+  const formStep = document.getElementById("modalFormStep");
 
-renderDays();
-updateStatistics();
+  modalTitle.textContent = act.title;
+  modalMeta.textContent = `${day.weekday} ${toFaDigits(day.date)} — ${act.subject} — ${toFaDigits(act.start)} تا ${toFaDigits(act.end)}`;
+
+  choiceStep.classList.remove("hidden");
+  formStep.classList.add("hidden");
+  document.getElementById("studyMinutesInput").value = "";
+  document.getElementById("testCountInput").value = "";
+
+  modal.classList.add("open");
+
+  const planned = plannedMinutes(act);
+
+  document.getElementById("btnSkipped").onclick = () => {
+    RECORDS[recId] = { status: "skipped", recordedAt: new Date().toISOString() };
+    saveRecords(RECORDS);
+    closeModal();
+    renderStudentPanel();
+    renderDashboard();
+  };
+
+  document.getElementById("btnDone").onclick = () => {
+    choiceStep.classList.add("hidden");
+    formStep.classList.remove("hidden");
+  };
+
+  document.getElementById("confirmDoneBtn").onclick = () => {
+    const minutesRaw = document.getElementById("studyMinutesInput").value;
+    const testsRaw = document.getElementById("testCountInput").value;
+    const minutes = Math.max(0, Number(minutesRaw));
+    const tests = Math.max(0, Number(testsRaw));
+
+    if (minutesRaw === "" || isNaN(minutes)) {
+      document.getElementById("modalFormError").textContent = "لطفاً مدت مطالعه را به دقیقه وارد کنید.";
+      return;
+    }
+    if (testsRaw === "" || isNaN(tests)) {
+      document.getElementById("modalFormError").textContent = "لطفاً تعداد تست را وارد کنید (در صورت نبود تست، عدد ۰).";
+      return;
+    }
+    document.getElementById("modalFormError").textContent = "";
+
+    const percent = planned > 0 ? Math.min(100, Math.round((minutes / planned) * 100)) : 0;
+    RECORDS[recId] = {
+      status: "done",
+      studyMinutes: minutes,
+      testCount: tests,
+      percent,
+      recordedAt: new Date().toISOString(),
+    };
+    saveRecords(RECORDS);
+    closeModal();
+    renderStudentPanel();
+    renderDashboard();
+  };
+}
+
+function closeModal() {
+  document.getElementById("recordModal").classList.remove("open");
+}
+
+/* --------------------------------------------------------------------------
+   7) داشبورد پیشرفت دانش‌آموز
+   -------------------------------------------------------------------------- */
+
+function renderDashboard() {
+  const overall = computeOverallStats();
+  const today = computeTodayStats();
+
+  const grid = document.getElementById("dashboardGrid");
+  grid.innerHTML = `
+    <div class="stat-card glass">
+      <span class="stat-label">پیشرفت امروز</span>
+      <span class="stat-value ${percentClass(today.percent)}">${toFaDigits(today.percent)}٪</span>
+      <span class="stat-foot">${today.weekday} ${toFaDigits(today.date)}</span>
+    </div>
+    <div class="stat-card glass">
+      <span class="stat-label">مدت مطالعه امروز</span>
+      <span class="stat-value">${toFaDigits(today.studied)}</span>
+      <span class="stat-foot">دقیقه</span>
+    </div>
+    <div class="stat-card glass">
+      <span class="stat-label">تعداد تست امروز</span>
+      <span class="stat-value">${toFaDigits(today.tests)}</span>
+      <span class="stat-foot">تست</span>
+    </div>
+    <div class="stat-card glass">
+      <span class="stat-label">فعالیت‌های انجام‌شده</span>
+      <span class="stat-value">${toFaDigits(overall.doneCount)}</span>
+      <span class="stat-foot">از ${toFaDigits(overall.totalActivities)} فعالیت</span>
+    </div>
+    <div class="stat-card glass">
+      <span class="stat-label">فعالیت‌های نخوانده</span>
+      <span class="stat-value pct-low">${toFaDigits(overall.skippedCount)}</span>
+      <span class="stat-foot">فعالیت</span>
+    </div>
+    <div class="stat-card glass wide">
+      <span class="stat-label">درصد مطالعه کل برنامه</span>
+      <div class="progress-bar-track lg">
+        <div class="progress-bar-fill ${percentClass(overall.overallPercent)}" style="width:${overall.overallPercent}%"></div>
+      </div>
+      <span class="stat-foot">${toFaDigits(overall.overallPercent)}٪ از ${toFaDigits(overall.totalPlanned)} دقیقه برنامه‌ریزی‌شده</span>
+    </div>
+  `;
+}
+
+/* --------------------------------------------------------------------------
+   8) پنل مشاور: گزارش کلی + گزارش روزانه + گزارش درسی
+   -------------------------------------------------------------------------- */
+
+function renderAdvisorPanel() {
+  const overall = computeOverallStats();
+  const daily = computeDailyReports();
+  const subjects = computeSubjectReports();
+
+  // گزارش کلی
+  document.getElementById("advisorOverallGrid").innerHTML = `
+    <div class="stat-card glass"><span class="stat-label">کل مدت برنامه‌ریزی‌شده</span><span class="stat-value">${toFaDigits(overall.totalPlanned)}</span><span class="stat-foot">دقیقه</span></div>
+    <div class="stat-card glass"><span class="stat-label">کل مدت مطالعه واقعی</span><span class="stat-value">${toFaDigits(overall.totalStudied)}</span><span class="stat-foot">دقیقه</span></div>
+    <div class="stat-card glass"><span class="stat-label">درصد کلی مطالعه</span><span class="stat-value ${percentClass(overall.overallPercent)}">${toFaDigits(overall.overallPercent)}٪</span></div>
+    <div class="stat-card glass"><span class="stat-label">کل تعداد تست</span><span class="stat-value">${toFaDigits(overall.totalTests)}</span></div>
+    <div class="stat-card glass"><span class="stat-label">فعالیت‌های خوانده‌شده</span><span class="stat-value status-good-text">${toFaDigits(overall.doneCount)}</span></div>
+    <div class="stat-card glass"><span class="stat-label">فعالیت‌های نخوانده</span><span class="stat-value status-bad-text">${toFaDigits(overall.skippedCount)}</span></div>
+    <div class="stat-card glass"><span class="stat-label">فعالیت‌های ثبت‌نشده</span><span class="stat-value">${toFaDigits(overall.unrecordedCount)}</span></div>
+  `;
+
+  // گزارش روزانه
+  const dailyBody = document.getElementById("dailyReportBody");
+  dailyBody.innerHTML = daily.map((d) => `
+    <tr>
+      <td>${d.weekday} ${toFaDigits(d.date)}</td>
+      <td>${toFaDigits(d.planned)}</td>
+      <td>${toFaDigits(d.studied)}</td>
+      <td><span class="table-pct ${percentClass(d.percent)}">${toFaDigits(d.percent)}٪</span></td>
+      <td>${toFaDigits(d.tests)}</td>
+      <td>${toFaDigits(d.done)}</td>
+      <td>${toFaDigits(d.skipped)}</td>
+    </tr>
+  `).join("");
+
+  // گزارش درسی
+  const subjectBody = document.getElementById("subjectReportBody");
+  subjectBody.innerHTML = subjects.map((s) => `
+    <tr>
+      <td>${s.subject}</td>
+      <td>${toFaDigits(s.planned)}</td>
+      <td>${toFaDigits(s.studied)}</td>
+      <td><span class="table-pct ${percentClass(s.percent)}">${toFaDigits(s.percent)}٪</span></td>
+      <td>${toFaDigits(s.tests)}</td>
+      <td>${toFaDigits(s.done)}</td>
+      <td>${toFaDigits(s.skipped)}</td>
+    </tr>
+  `).join("");
+}
+
+/* --------------------------------------------------------------------------
+   9) جابه‌جایی بین «پنل دانش‌آموز» و «پنل مشاور»
+   -------------------------------------------------------------------------- */
+
+function switchTab(tabName) {
+  document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.toggle("active", btn.dataset.tab === tabName));
+  document.querySelectorAll(".panel").forEach((panel) => panel.classList.toggle("active", panel.id === `panel-${tabName}`));
+  if (tabName === "advisor") renderAdvisorPanel();
+}
+
+/* --------------------------------------------------------------------------
+   10) خروجی PDF برای مشاور
+   -------------------------------------------------------------------------------
+   نکته فنی: کتابخانه‌های jsPDF و html2canvas (که در Omg.html و با نام «Palang»
+   بارگذاری شده‌اند) استفاده می‌شوند. چون این دو کتابخانه به‌صورت داخلی از فونت
+   لاتین استفاده می‌کنند و متن فارسی/راست‌به‌چپ را درست رندر نمی‌کنند، به جای
+   نوشتن مستقیم متن در PDF، ابتدا گزارش را به شکل HTML با همان تم نئونی سایت
+   می‌سازیم، سپس با html2canvas آن را به تصویر تبدیل کرده و تصویر را داخل
+   صفحات PDF قرار می‌دهیم. به این ترتیب فونت فارسی، جهت راست‌به‌چپ و ظاهر
+   نئونی سایت دقیقاً همان چیزی می‌شود که در PDF نهایی دیده می‌شود.
+   -------------------------------------------------------------------------- */
+
+async function exportAdvisorPdf() {
+  const btn = document.getElementById("exportPdfBtn");
+  const originalLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "در حال ساخت PDF...";
+
+  try {
+    const overall = computeOverallStats();
+    const daily = computeDailyReports();
+    const subjects = computeSubjectReports();
+    const todayStr = new Date().toLocaleDateString("fa-IR");
+
+    // ساخت کانتینر مخفی برای رندر صفحات گزارش (خارج از دید کاربر)
+    const printRoot = document.getElementById("pdfRenderRoot");
+    printRoot.innerHTML = "";
+
+    // ---- صفحه ۱: عنوان + خلاصه آماری ----
+    const page1 = document.createElement("div");
+    page1.className = "pdf-page";
+    page1.innerHTML = `
+      <div class="pdf-header">
+        <h1>گزارش پیشرفت مطالعاتی</h1>
+        <p class="pdf-sub">تاریخ تهیه گزارش: ${todayStr}</p>
+      </div>
+      <div class="pdf-stats-grid">
+        <div class="pdf-stat"><span>کل مدت برنامه‌ریزی‌شده</span><b>${toFaDigits(overall.totalPlanned)} دقیقه</b></div>
+        <div class="pdf-stat"><span>کل مدت مطالعه واقعی</span><b>${toFaDigits(overall.totalStudied)} دقیقه</b></div>
+        <div class="pdf-stat"><span>درصد کلی مطالعه</span><b>${toFaDigits(overall.overallPercent)}٪</b></div>
+        <div class="pdf-stat"><span>کل تعداد تست</span><b>${toFaDigits(overall.totalTests)}</b></div>
+        <div class="pdf-stat"><span>فعالیت‌های خوانده‌شده</span><b>${toFaDigits(overall.doneCount)}</b></div>
+        <div class="pdf-stat"><span>فعالیت‌های نخوانده</span><b>${toFaDigits(overall.skippedCount)}</b></div>
+        <div class="pdf-stat"><span>فعالیت‌های ثبت‌نشده</span><b>${toFaDigits(overall.unrecordedCount)}</b></div>
+      </div>
+      <div class="pdf-progress-block">
+        <span>درصد کلی مطالعه برنامه</span>
+        <div class="pdf-progress-track"><div class="pdf-progress-fill" style="width:${overall.overallPercent}%"></div></div>
+      </div>
+    `;
+
+    // ---- صفحه ۲: گزارش روزانه ----
+    const page2 = document.createElement("div");
+    page2.className = "pdf-page";
+    page2.innerHTML = `
+      <h2 class="pdf-section-title">گزارش روزانه</h2>
+      <table class="pdf-table">
+        <thead><tr><th>روز</th><th>برنامه (د)</th><th>مطالعه (د)</th><th>درصد</th><th>تست</th><th>انجام</th><th>نخوانده</th></tr></thead>
+        <tbody>
+          ${daily.map((d) => `<tr>
+            <td>${d.weekday} ${toFaDigits(d.date)}</td>
+            <td>${toFaDigits(d.planned)}</td>
+            <td>${toFaDigits(d.studied)}</td>
+            <td>${toFaDigits(d.percent)}٪</td>
+            <td>${toFaDigits(d.tests)}</td>
+            <td>${toFaDigits(d.done)}</td>
+            <td>${toFaDigits(d.skipped)}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    `;
+
+    // ---- صفحه ۳: گزارش درسی ----
+    const page3 = document.createElement("div");
+    page3.className = "pdf-page";
+    page3.innerHTML = `
+      <h2 class="pdf-section-title">گزارش درسی</h2>
+      <table class="pdf-table">
+        <thead><tr><th>درس</th><th>برنامه (د)</th><th>مطالعه (د)</th><th>درصد</th><th>تست</th><th>انجام</th><th>نخوانده</th></tr></thead>
+        <tbody>
+          ${subjects.map((s) => `<tr>
+            <td>${s.subject}</td>
+            <td>${toFaDigits(s.planned)}</td>
+            <td>${toFaDigits(s.studied)}</td>
+            <td>${toFaDigits(s.percent)}٪</td>
+            <td>${toFaDigits(s.tests)}</td>
+            <td>${toFaDigits(s.done)}</td>
+            <td>${toFaDigits(s.skipped)}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    `;
+
+    printRoot.appendChild(page1);
+    printRoot.appendChild(page2);
+    printRoot.appendChild(page3);
+
+    // بررسی در دسترس بودن کتابخانه‌های خارجی (Palang)
+    if (typeof html2canvas === "undefined" || typeof window.jspdf === "undefined") {
+      alert("برای ساخت PDF نیاز به اتصال اینترنت است (بارگذاری کتابخانه‌های Palang). لطفاً اتصال خود را بررسی کنید.");
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const pages = printRoot.querySelectorAll(".pdf-page");
+    for (let i = 0; i < pages.length; i++) {
+      const canvas = await html2canvas(pages[i], { scale: 2, backgroundColor: "#0b0e17" });
+      const imgData = canvas.toDataURL("image/png");
+      const imgHeight = (canvas.height * pageWidth) / canvas.width;
+      if (i > 0) pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, 0, pageWidth, Math.min(imgHeight, pageHeight));
+    }
+
+    pdf.save("گزارش-برنامه-مطالعاتی.pdf");
+    printRoot.innerHTML = "";
+  } catch (err) {
+    console.error("خطا در ساخت PDF:", err);
+    alert("متأسفانه ساخت PDF با خطا مواجه شد.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   11) راه‌اندازی اولیه برنامه
+   -------------------------------------------------------------------------- */
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderStudentPanel();
+  renderDashboard();
+
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+  });
+
+  document.getElementById("modalCloseBtn").addEventListener("click", closeModal);
+  document.getElementById("recordModal").addEventListener("click", (e) => {
+    if (e.target.id === "recordModal") closeModal();
+  });
+
+  document.getElementById("exportPdfBtn").addEventListener("click", exportAdvisorPdf);
+});
