@@ -1,17 +1,13 @@
 /* ==========================================================================
    OOOO.js
-   منطق کامل «پیگیری برنامه مطالعاتی دانش‌آموز»
-   شامل: داده‌های برنامه، محاسبات، ذخیره‌سازی (localStorage)،
-   رندر پنل دانش‌آموز، رندر پنل مشاور و خروجی PDF
+   پیگیری برنامه مطالعاتی دانش‌آموز
    ========================================================================== */
 
-/* --------------------------------------------------------------------------
-   1) داده‌های ثابت برنامه مطالعاتی
-   نکته: این آرایه دقیقاً همان برنامه‌ای است که کاربر مشخص کرده و
-   هیچ زمان/فعالیتی از آن حذف یا تغییر داده نشده است.
-   type: "meal"  -> وعده غذایی (غیرقابل ثبت)
-   type: "study" -> فعالیت درسی (قابل ثبت)
-   -------------------------------------------------------------------------- */
+
+/* ==========================================================================
+   1) برنامه مطالعاتی
+   ========================================================================== */
+
 const SCHEDULE = [
   { date: "12 شهریور", weekday: "پنجشنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
@@ -26,6 +22,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"مرور و تست فیزیک ۱", subject:"فیزیک ۱", type:"study" },
   ]},
+
   { date: "13 شهریور", weekday: "جمعه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"تست فصل ۱ فیزیک ۱ + دوره فصل ۲ فیزیک ۱", subject:"فیزیک ۱", type:"study" },
@@ -39,6 +36,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"مرور شیمی ۱ و تکمیل تست‌ها", subject:"شیمی ۱", type:"study" },
   ]},
+
   { date: "14 شهریور", weekday: "شنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"توان‌های گویا و عبارات جبری + تست", subject:"ریاضی (جبر)", type:"study" },
@@ -52,6 +50,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"تکمیل تست شیمی ۱", subject:"شیمی ۱", type:"study" },
   ]},
+
   { date: "15 شهریور", weekday: "یکشنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"توان‌های گویا و عبارات جبری + تست", subject:"ریاضی (جبر)", type:"study" },
@@ -65,6 +64,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"مرور و تست مباحث ریاضی", subject:"ریاضی (معادله)", type:"study" },
   ]},
+
   { date: "16 شهریور", weekday: "دوشنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"توان‌های گویا و عبارات جبری + تست", subject:"ریاضی (جبر)", type:"study" },
@@ -78,6 +78,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"تکمیل تست‌های ریاضی", subject:"ریاضی (معادله)", type:"study" },
   ]},
+
   { date: "17 شهریور", weekday: "سه‌شنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"فصل ۲ شیمی ۱ + تست (حداقل ۱۵۰ تست)", subject:"شیمی ۱", type:"study" },
@@ -91,6 +92,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"مرور شیمی ۱", subject:"شیمی ۱", type:"study" },
   ]},
+
   { date: "18 شهریور", weekday: "چهارشنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"فصل ۲ شیمی ۱ + تست (حداقل ۱۵۰ تست)", subject:"شیمی ۱", type:"study" },
@@ -104,6 +106,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"تکمیل تست ریاضی", subject:"ریاضی (معادله)", type:"study" },
   ]},
+
   { date: "19 شهریور", weekday: "پنجشنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"فصل ۲ شیمی ۱ + تست (حداقل ۱۵۰ تست)", subject:"شیمی ۱", type:"study" },
@@ -117,6 +120,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"مرور فیزیک ۱", subject:"فیزیک ۱", type:"study" },
   ]},
+
   { date: "20 شهریور", weekday: "جمعه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"فصل ۲ شیمی ۱ + تست (حداقل ۱۵۰ تست)", subject:"شیمی ۱", type:"study" },
@@ -130,6 +134,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"تکمیل تست هندسه ۱", subject:"هندسه ۱", type:"study" },
   ]},
+
   { date: "21 شهریور", weekday: "شنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"مثلثات دهم و یازدهم + تست (حداقل ۱۵۰ تست)", subject:"مثلثات", type:"study" },
@@ -143,6 +148,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"تکمیل تست شیمی ۱", subject:"شیمی ۱", type:"study" },
   ]},
+
   { date: "22 شهریور", weekday: "یکشنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"مثلثات دهم و یازدهم + تست", subject:"مثلثات", type:"study" },
@@ -156,6 +162,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"مرور فصل ۳ شیمی ۱", subject:"شیمی ۱", type:"study" },
   ]},
+
   { date: "23 شهریور", weekday: "دوشنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"مثلثات دهم و یازدهم + تست", subject:"مثلثات", type:"study" },
@@ -169,6 +176,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"تکمیل تست فیزیک ۱", subject:"فیزیک ۱", type:"study" },
   ]},
+
   { date: "24 شهریور", weekday: "سه‌شنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"مثلثات دهم و یازدهم + تست", subject:"مثلثات", type:"study" },
@@ -182,6 +190,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"مرور هندسه ۲", subject:"هندسه ۲", type:"study" },
   ]},
+
   { date: "25 شهریور", weekday: "چهارشنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"مثلثات دهم و یازدهم + تست", subject:"مثلثات", type:"study" },
@@ -195,6 +204,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"تکمیل تست شیمی ۱", subject:"شیمی ۱", type:"study" },
   ]},
+
   { date: "26 شهریور", weekday: "پنجشنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"مثلثات دهم و یازدهم + تست", subject:"مثلثات", type:"study" },
@@ -208,6 +218,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"مرور فیزیک ۱", subject:"فیزیک ۱", type:"study" },
   ]},
+
   { date: "27 شهریور", weekday: "جمعه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"مثلثات دهم و یازدهم + تست", subject:"مثلثات", type:"study" },
@@ -221,6 +232,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"تکمیل تست هندسه ۲", subject:"هندسه ۲", type:"study" },
   ]},
+
   { date: "28 شهریور", weekday: "شنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"تابع دهم و یازدهم + نمایی و لگاریتمی + تست", subject:"تابع", type:"study" },
@@ -234,6 +246,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"تکمیل تست شیمی ۲", subject:"شیمی ۲", type:"study" },
   ]},
+
   { date: "29 شهریور", weekday: "یکشنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"تابع دهم و یازدهم + نمایی و لگاریتمی + تست", subject:"تابع", type:"study" },
@@ -247,6 +260,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"تکمیل تست شیمی ۲", subject:"شیمی ۲", type:"study" },
   ]},
+
   { date: "30 شهریور", weekday: "دوشنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"تابع دهم و یازدهم + نمایی و لگاریتمی + تست", subject:"تابع", type:"study" },
@@ -260,6 +274,7 @@ const SCHEDULE = [
     { start:"21:00", end:"21:40", title:"شام", type:"meal" },
     { start:"21:40", end:"22:55", title:"مرور فیزیک ۱", subject:"فیزیک ۱", type:"study" },
   ]},
+
   { date: "31 شهریور", weekday: "سه‌شنبه", activities: [
     { start:"08:30", end:"09:10", title:"صبحانه", type:"meal" },
     { start:"09:10", end:"10:25", title:"تابع دهم و یازدهم + نمایی و لگاریتمی + تست", subject:"تابع", type:"study" },
@@ -275,50 +290,68 @@ const SCHEDULE = [
   ]},
 ];
 
-/* --------------------------------------------------------------------------
-   2) کمک‌تابع‌های پایه: تبدیل اعداد به فارسی، محاسبه مدت زمان، ساخت شناسه
-   -------------------------------------------------------------------------- */
 
-// تبدیل ارقام لاتین به ارقام فارسی برای نمایش زیبا در رابط کاربری
+/* ==========================================================================
+   2) ابزارهای پایه
+   ========================================================================== */
+
 const FA_DIGITS = ["۰","۱","۲","۳","۴","۵","۶","۷","۸","۹"];
+
 function toFaDigits(input) {
-  return String(input).replace(/[0-9]/g, (d) => FA_DIGITS[Number(d)]);
+  return String(input).replace(/[0-9]/g, d => FA_DIGITS[Number(d)]);
 }
 
-// محاسبه مدت زمان برنامه‌ریزی‌شده یک فعالیت بر حسب دقیقه، از روی start/end
 function plannedMinutes(activity) {
+  if (!activity || !activity.start || !activity.end) return 0;
+
   const [sh, sm] = activity.start.split(":").map(Number);
   const [eh, em] = activity.end.split(":").map(Number);
+
   return (eh * 60 + em) - (sh * 60 + sm);
 }
 
-// شناسه یکتا برای هر فعالیت: بر اساس اندیس روز و اندیس فعالیت
-// (پایدار در هر بار بارگذاری صفحه، چون بر پایه آرایه ثابت SCHEDULE است)
-function activityId(dayIndex, actIndex) {
-  return `day${dayIndex}_act${actIndex}`;
+function activityId(dayIndex, activityIndex) {
+  return `day${dayIndex}_act${activityIndex}`;
 }
 
-/* --------------------------------------------------------------------------
-   3) لایه ذخیره‌سازی (localStorage)
-   ساختار ذخیره: یک آبجکت با کلید شناسه فعالیت و مقدار رکورد ثبت‌شده:
-   {
-     "day0_act1": {
-        status: "done" | "skipped",
-        studyMinutes: 60,
-        testCount: 80,
-        percent: 80,
-        recordedAt: "ISO date string"
-     }, ...
-   }
-   -------------------------------------------------------------------------- */
+function formatAdvisorTime(minutes) {
+  minutes = Math.max(0, Number(minutes) || 0);
+
+  if (minutes > 180) {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+
+    if (mins === 0) {
+      return `${toFaDigits(hours)} ساعت`;
+    }
+
+    return `${toFaDigits(hours)} ساعت و ${toFaDigits(mins)} دقیقه`;
+  }
+
+  return `${toFaDigits(minutes)} دقیقه`;
+}
+
+function percentClass(percent) {
+  percent = Number(percent) || 0;
+
+  if (percent >= 80) return "pct-good";
+  if (percent >= 40) return "pct-mid";
+  return "pct-low";
+}
+
+
+/* ==========================================================================
+   3) localStorage
+   ========================================================================== */
+
 const STORAGE_KEY = "studyTrackerRecords_v1";
 
 function loadRecords() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     return raw ? JSON.parse(raw) : {};
-  } catch (e) {
-    console.error("خطا در خواندن اطلاعات ذخیره‌شده:", e);
+  } catch (error) {
+    console.error("خطا در خواندن اطلاعات:", error);
     return {};
   }
 }
@@ -326,1143 +359,1833 @@ function loadRecords() {
 function saveRecords(records) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-  } catch (e) {
-    console.error("خطا در ذخیره‌سازی اطلاعات:", e);
+  } catch (error) {
+    console.error("خطا در ذخیره اطلاعات:", error);
   }
 }
 
-// حافظه در حال اجرا؛ همیشه با storage همگام نگه داشته می‌شود
 let RECORDS = loadRecords();
 
-/* --------------------------------------------------------------------------
-   4) محاسبات آماری
-   -------------------------------------------------------------------------- */
 
-// همه فعالیت‌های درسی (غیر از وعده‌های غذایی) را با متادیتای روز برمی‌گرداند
+/* ==========================================================================
+   4) محاسبات
+   ========================================================================== */
+
 function allStudyActivities() {
-  const list = [];
-  SCHEDULE.forEach((day, dIdx) => {
-    day.activities.forEach((act, aIdx) => {
-      if (act.type === "study") {
-        list.push({ ...act, id: activityId(dIdx, aIdx), dayIndex: dIdx, date: day.date, weekday: day.weekday, planned: plannedMinutes(act) });
-      }
+  const result = [];
+
+  SCHEDULE.forEach((day, dayIndex) => {
+    day.activities.forEach((activity, activityIndex) => {
+
+      if (activity.type !== "study") return;
+
+      result.push({
+        ...activity,
+        id: activityId(dayIndex, activityIndex),
+        dayIndex,
+        activityIndex,
+        date: day.date,
+        weekday: day.weekday,
+        planned: plannedMinutes(activity)
+      });
     });
   });
-  return list;
+
+  return result;
 }
 
-// خلاصه آماری کلی برنامه (برای داشبورد دانش‌آموز و گزارش کلی مشاور)
-function computeOverallStats() {
-  const all = allStudyActivities();
-  let totalPlanned = 0, totalStudied = 0, totalTests = 0;
-  let doneCount = 0, skippedCount = 0, unrecordedCount = 0;
+function getRecord(dayIndex, activityIndex) {
+  return RECORDS[activityId(dayIndex, activityIndex)] || null;
+}
 
-  all.forEach((act) => {
-    totalPlanned += act.planned;
-    const rec = RECORDS[act.id];
-    if (!rec) {
+function getStudiedMinutes(record) {
+  if (!record) return 0;
+
+  return Number(
+    record.studyMinutes ??
+    record.studiedMinutes ??
+    record.minutes ??
+    record.duration ??
+    record.time ??
+    0
+  ) || 0;
+}
+
+function getTestCount(record) {
+  if (!record) return 0;
+
+  return Number(
+    record.testCount ??
+    record.tests ??
+    record.test ??
+    0
+  ) || 0;
+}
+
+function getPercent(studied, planned) {
+  if (!planned) return 0;
+
+  return Math.min(
+    100,
+    Math.round((studied / planned) * 100)
+  );
+}
+
+function computeOverallStats() {
+
+  const activities = allStudyActivities();
+
+  let totalPlanned = 0;
+  let totalStudied = 0;
+  let totalTests = 0;
+
+  let doneCount = 0;
+  let skippedCount = 0;
+  let unrecordedCount = 0;
+
+  activities.forEach(activity => {
+
+    totalPlanned += activity.planned;
+
+    const record = RECORDS[activity.id];
+
+    if (!record) {
       unrecordedCount++;
-    } else if (rec.status === "done") {
+      return;
+    }
+
+    if (record.status === "done") {
       doneCount++;
-      totalStudied += rec.studyMinutes || 0;
-      totalTests += rec.testCount || 0;
-    } else if (rec.status === "skipped") {
+      totalStudied += getStudiedMinutes(record);
+      totalTests += getTestCount(record);
+    }
+
+    if (record.status === "skipped") {
       skippedCount++;
     }
   });
 
-  const overallPercent = totalPlanned > 0 ? Math.min(100, Math.round((totalStudied / totalPlanned) * 100)) : 0;
-
-  return { totalPlanned, totalStudied, totalTests, doneCount, skippedCount, unrecordedCount, overallPercent, totalActivities: all.length };
+  return {
+    totalPlanned,
+    totalStudied,
+    totalTests,
+    doneCount,
+    skippedCount,
+    unrecordedCount,
+    overallPercent: getPercent(totalStudied, totalPlanned),
+    totalActivities: activities.length
+  };
 }
 
-// خلاصه آمار «امروز» (آخرین روزی که حداقل یک ثبت در آن انجام شده؛
-// در غیر این صورت اولین روز برنامه به عنوان روز جاری نمایش داده می‌شود)
+function dailyQuickStats(dayIndex) {
+
+  const day = SCHEDULE[dayIndex];
+
+  let planned = 0;
+  let studied = 0;
+  let done = 0;
+
+  day.activities.forEach((activity, activityIndex) => {
+
+    if (activity.type !== "study") return;
+
+    planned += plannedMinutes(activity);
+
+    const record = getRecord(dayIndex, activityIndex);
+
+    if (record && record.status === "done") {
+      done++;
+      studied += getStudiedMinutes(record);
+    }
+  });
+
+  return {
+    planned,
+    studied,
+    done,
+    total: day.activities.filter(a => a.type === "study").length,
+    percent: getPercent(studied, planned)
+  };
+}
+
 function computeTodayStats() {
-  const all = allStudyActivities();
-  // تشخیص «امروز»: جدیدترین روزی که رکورد ثبت‌شده دارد؛ وگرنه روز اول
+
+  const activities = allStudyActivities();
+
   let todayIndex = 0;
   let latestTime = 0;
-  all.forEach((act) => {
-    const rec = RECORDS[act.id];
-    if (rec && rec.recordedAt) {
-      const t = new Date(rec.recordedAt).getTime();
-      if (t >= latestTime) { latestTime = t; todayIndex = act.dayIndex; }
+
+  activities.forEach(activity => {
+
+    const record = RECORDS[activity.id];
+
+    if (!record || !record.recordedAt) return;
+
+    const time = new Date(record.recordedAt).getTime();
+
+    if (time >= latestTime) {
+      latestTime = time;
+      todayIndex = activity.dayIndex;
     }
   });
 
-  const dayActs = all.filter((a) => a.dayIndex === todayIndex);
-  let studied = 0, tests = 0, done = 0, skipped = 0, planned = 0;
-  dayActs.forEach((act) => {
-    planned += act.planned;
-    const rec = RECORDS[act.id];
-    if (rec && rec.status === "done") {
-      done++; studied += rec.studyMinutes || 0; tests += rec.testCount || 0;
-    } else if (rec && rec.status === "skipped") {
-      skipped++;
+  const stats = dailyQuickStats(todayIndex);
+
+  let tests = 0;
+
+  SCHEDULE[todayIndex].activities.forEach((activity, activityIndex) => {
+
+    if (activity.type !== "study") return;
+
+    const record = getRecord(todayIndex, activityIndex);
+
+    if (record && record.status === "done") {
+      tests += getTestCount(record);
     }
   });
-  const percent = planned > 0 ? Math.min(100, Math.round((studied / planned) * 100)) : 0;
-  return { dayIndex: todayIndex, date: SCHEDULE[todayIndex].date, weekday: SCHEDULE[todayIndex].weekday, studied, tests, done, skipped, percent, totalActs: dayActs.length };
+
+  return {
+    dayIndex: todayIndex,
+    date: SCHEDULE[todayIndex].date,
+    weekday: SCHEDULE[todayIndex].weekday,
+    studied: stats.studied,
+    tests,
+    done: stats.done,
+    percent: stats.percent,
+    totalActs: stats.total
+  };
 }
 
-// گزارش روزانه کامل (برای پنل مشاور)
-function computeDailyReports() {
-  return SCHEDULE.map((day, dIdx) => {
-    const studyActs = day.activities.filter((a) => a.type === "study");
-    let planned = 0, studied = 0, tests = 0, done = 0, skipped = 0, unrecorded = 0;
-    studyActs.forEach((act, i) => {
-      const aIdx = day.activities.indexOf(act);
-      const id = activityId(dIdx, aIdx);
-      planned += plannedMinutes(act);
-      const rec = RECORDS[id];
-      if (!rec) { unrecorded++; }
-      else if (rec.status === "done") { done++; studied += rec.studyMinutes || 0; tests += rec.testCount || 0; }
-      else if (rec.status === "skipped") { skipped++; }
-    });
-    const percent = planned > 0 ? Math.min(100, Math.round((studied / planned) * 100)) : 0;
-    return { date: day.date, weekday: day.weekday, planned, studied, tests, percent, done, skipped, unrecorded, total: studyActs.length };
-  });
-}
 
-// گزارش درسی: تجمیع بر اساس نام درس (subject)
-function computeSubjectReports() {
-  const all = allStudyActivities();
-  const map = {};
-  all.forEach((act) => {
-    if (!map[act.subject]) {
-      map[act.subject] = { subject: act.subject, planned: 0, studied: 0, tests: 0, done: 0, skipped: 0, unrecorded: 0, total: 0 };
-    }
-    const s = map[act.subject];
-    s.total++;
-    s.planned += act.planned;
-    const rec = RECORDS[act.id];
-    if (!rec) { s.unrecorded++; }
-    else if (rec.status === "done") { s.done++; s.studied += rec.studyMinutes || 0; s.tests += rec.testCount || 0; }
-    else if (rec.status === "skipped") { s.skipped++; }
-  });
-  return Object.values(map).map((s) => ({ ...s, percent: s.planned > 0 ? Math.min(100, Math.round((s.studied / s.planned) * 100)) : 0 }));
-}
+/* ==========================================================================
+   5) پنل دانش‌آموز
+   ========================================================================== */
 
-/* --------------------------------------------------------------------------
-   5) رندر پنل دانش‌آموز: آکاردئون روزها + کارت‌های فعالیت
-   -------------------------------------------------------------------------- */
-
-// وضعیت باز/بسته بودن آکاردئون هر روز (فقط در حافظه؛ نیازی به ذخیره‌سازی نیست)
 const openDays = new Set();
 
 function renderStudentPanel() {
+
   const container = document.getElementById("daysContainer");
+
+  if (!container) return;
+
   container.innerHTML = "";
 
-  SCHEDULE.forEach((day, dIdx) => {
+  SCHEDULE.forEach((day, dayIndex) => {
+
     const dayCard = document.createElement("div");
     dayCard.className = "day-card glass";
 
-    const dayStats = dailyQuickStats(dIdx);
+    const stats = dailyQuickStats(dayIndex);
 
     const header = document.createElement("button");
+
+    header.type = "button";
     header.className = "day-header";
-    header.setAttribute("type", "button");
-    header.setAttribute("aria-expanded", openDays.has(dIdx) ? "true" : "false");
+    header.setAttribute(
+      "aria-expanded",
+      openDays.has(dayIndex) ? "true" : "false"
+    );
+
     header.innerHTML = `
       <div class="day-header-main">
-        <span class="day-title">${day.weekday} ${toFaDigits(day.date)}</span>
-        <span class="day-sub">${toFaDigits(dayStats.done)} از ${toFaDigits(dayStats.total)} فعالیت ثبت شده</span>
+
+        <span class="day-title">
+          ${day.weekday} ${toFaDigits(day.date)}
+        </span>
+
+        <span class="day-sub">
+          ${toFaDigits(stats.done)}
+          از
+          ${toFaDigits(stats.total)}
+          فعالیت ثبت شده
+        </span>
+
       </div>
+
       <div class="day-header-side">
-        <span class="mini-percent ${percentClass(dayStats.percent)}">${toFaDigits(dayStats.percent)}٪</span>
+
+        <span class="mini-percent ${percentClass(stats.percent)}">
+          ${toFaDigits(stats.percent)}٪
+        </span>
+
         <span class="chevron">⌄</span>
+
       </div>
     `;
 
     const body = document.createElement("div");
-    body.className = "day-body";
-    if (openDays.has(dIdx)) body.classList.add("open");
 
-    day.activities.forEach((act, aIdx) => {
-      body.appendChild(renderActivityCard(day, dIdx, act, aIdx));
+    body.className = "day-body";
+
+    if (openDays.has(dayIndex)) {
+      body.classList.add("open");
+      header.classList.add("active");
+    }
+
+    day.activities.forEach((activity, activityIndex) => {
+      body.appendChild(
+        renderActivityCard(
+          day,
+          dayIndex,
+          activity,
+          activityIndex
+        )
+      );
     });
 
+    /*
+      مهم:
+      فقط همین Event برای کشویی استفاده می‌شود.
+      Event دیگری در انتهای فایل وجود ندارد.
+    */
+
     header.addEventListener("click", () => {
-      const isOpen = body.classList.toggle("open");
-      header.setAttribute("aria-expanded", isOpen ? "true" : "false");
-      if (isOpen) openDays.add(dIdx); else openDays.delete(dIdx);
+
+      const opening = !body.classList.contains("open");
+
+      body.classList.toggle("open", opening);
+      header.classList.toggle("active", opening);
+
+      header.setAttribute(
+        "aria-expanded",
+        opening ? "true" : "false"
+      );
+
+      if (opening) {
+        openDays.add(dayIndex);
+      } else {
+        openDays.delete(dayIndex);
+      }
     });
 
     dayCard.appendChild(header);
     dayCard.appendChild(body);
+
     container.appendChild(dayCard);
   });
 }
 
-function dailyQuickStats(dIdx) {
-  const day = SCHEDULE[dIdx];
-  const studyActs = day.activities.filter((a) => a.type === "study");
-  let done = 0, studied = 0, planned = 0;
-  studyActs.forEach((act) => {
-    const aIdx = day.activities.indexOf(act);
-    const id = activityId(dIdx, aIdx);
-    planned += plannedMinutes(act);
-    const rec = RECORDS[id];
-    if (rec && rec.status === "done") { done++; studied += rec.studyMinutes || 0; }
-  });
-  const percent = planned > 0 ? Math.min(100, Math.round((studied / planned) * 100)) : 0;
-  return { done, total: studyActs.length, percent };
-}
+function renderActivityCard(day, dayIndex, activity, activityIndex) {
 
-function percentClass(p) {
-  if (p >= 80) return "pct-good";
-  if (p >= 40) return "pct-mid";
-  return "pct-low";
-}
-
-function renderActivityCard(day, dIdx, act, aIdx) {
   const card = document.createElement("div");
 
-  if (act.type === "meal") {
+  if (activity.type === "meal") {
+
     card.className = "activity-card meal-card";
+
     card.innerHTML = `
-      <div class="activity-time">${toFaDigits(act.start)} - ${toFaDigits(act.end)}</div>
+      <div class="activity-time">
+        ${toFaDigits(activity.start)}
+        -
+        ${toFaDigits(activity.end)}
+      </div>
+
       <div class="activity-main">
+
         <span class="meal-icon">🍽️</span>
-        <span class="activity-title">${act.title}</span>
+
+        <span class="activity-title">
+          ${activity.title}
+        </span>
+
       </div>
     `;
+
     return card;
   }
 
-  const id = activityId(dIdx, aIdx);
-  const rec = RECORDS[id];
-  const planned = plannedMinutes(act);
+  const id = activityId(dayIndex, activityIndex);
+  const record = RECORDS[id];
+  const planned = plannedMinutes(activity);
 
-  let statusBadge = `<span class="status-badge status-none">ثبت‌نشده</span>`;
-  let progressHtml = "";
-  if (rec && rec.status === "done") {
-    statusBadge = `<span class="status-badge status-done">خواندم</span>`;
-    progressHtml = `
+  let statusBadge = `
+    <span class="status-badge status-none">
+      ثبت‌نشده
+    </span>
+  `;
+
+  let progressHTML = "";
+
+  if (record && record.status === "done") {
+
+    const studied = getStudiedMinutes(record);
+    const tests = getTestCount(record);
+    const percent = getPercent(studied, planned);
+
+    statusBadge = `
+      <span class="status-badge status-done">
+        خواندم
+      </span>
+    `;
+
+    progressHTML = `
       <div class="progress-wrap">
+
         <div class="progress-bar-track">
-          <div class="progress-bar-fill ${percentClass(rec.percent)}" style="width:${rec.percent}%"></div>
+
+          <div
+            class="progress-bar-fill ${percentClass(percent)}"
+            style="width:${percent}%"
+          ></div>
+
         </div>
-        <span class="progress-label ${percentClass(rec.percent)}">${toFaDigits(rec.percent)}٪</span>
+
+        <span class="progress-label ${percentClass(percent)}">
+          ${toFaDigits(percent)}٪
+        </span>
+
       </div>
+
       <div class="activity-detail-row">
-        <span>مدت مطالعه: ${toFaDigits(rec.studyMinutes)} دقیقه</span>
-        <span>تعداد تست: ${toFaDigits(rec.testCount)}</span>
+
+        <span>
+          مدت مطالعه:
+          ${formatAdvisorTime(studied)}
+        </span>
+
+        <span>
+          تعداد تست:
+          ${toFaDigits(tests)}
+        </span>
+
       </div>
     `;
-  } else if (rec && rec.status === "skipped") {
-    statusBadge = `<span class="status-badge status-skip">نخواندم</span>`;
+  }
+
+  else if (record && record.status === "skipped") {
+
+    statusBadge = `
+      <span class="status-badge status-skip">
+        نخواندم
+      </span>
+    `;
   }
 
   card.className = "activity-card study-card";
+
   card.innerHTML = `
-    <div class="activity-time">${toFaDigits(act.start)} - ${toFaDigits(act.end)}
-      <span class="planned-min">(${toFaDigits(planned)} دقیقه برنامه)</span>
+
+    <div class="activity-time">
+
+      ${toFaDigits(activity.start)}
+      -
+      ${toFaDigits(activity.end)}
+
+      <span class="planned-min">
+        (${formatAdvisorTime(planned)} برنامه)
+      </span>
+
     </div>
+
     <div class="activity-main">
+
       <div class="activity-text">
-        <span class="activity-subject">${act.subject}</span>
-        <span class="activity-title">${act.title}</span>
+
+        <span class="activity-subject">
+          ${activity.subject}
+        </span>
+
+        <span class="activity-title">
+          ${activity.title}
+        </span>
+
       </div>
+
       ${statusBadge}
+
     </div>
-    ${progressHtml}
-    <button class="record-btn" type="button">ثبت</button>
+
+    ${progressHTML}
+
+    <button
+      class="record-btn"
+      type="button"
+    >
+      ثبت
+    </button>
+
   `;
 
-  card.querySelector(".record-btn").addEventListener("click", () => openRecordModal(id, act, day));
+  card
+    .querySelector(".record-btn")
+    .addEventListener("click", () => {
+
+      openRecordModal(
+        id,
+        activity,
+        day
+      );
+    });
+
   return card;
 }
 
-/* --------------------------------------------------------------------------
-   6) مودال ثبت وضعیت فعالیت
-   -------------------------------------------------------------------------- */
 
-function openRecordModal(recId, act, day) {
+/* ==========================================================================
+   6) مودال ثبت
+   ========================================================================== */
+
+function openRecordModal(recordId, activity, day) {
+
   const modal = document.getElementById("recordModal");
-  const modalTitle = document.getElementById("modalActivityTitle");
-  const modalMeta = document.getElementById("modalActivityMeta");
-  const choiceStep = document.getElementById("modalChoiceStep");
-  const formStep = document.getElementById("modalFormStep");
 
-  modalTitle.textContent = act.title;
-  modalMeta.textContent = `${day.weekday} ${toFaDigits(day.date)} — ${act.subject} — ${toFaDigits(act.start)} تا ${toFaDigits(act.end)}`;
+  if (!modal) return;
+
+  const modalTitle =
+    document.getElementById("modalActivityTitle");
+
+  const modalMeta =
+    document.getElementById("modalActivityMeta");
+
+  const choiceStep =
+    document.getElementById("modalChoiceStep");
+
+  const formStep =
+    document.getElementById("modalFormStep");
+
+  const minutesInput =
+    document.getElementById("studyMinutesInput");
+
+  const testsInput =
+    document.getElementById("testCountInput");
+
+  const formError =
+    document.getElementById("modalFormError");
+
+  modalTitle.textContent = activity.title;
+
+  modalMeta.textContent =
+    `${day.weekday} ${toFaDigits(day.date)} — ` +
+    `${activity.subject} — ` +
+    `${toFaDigits(activity.start)} تا ${toFaDigits(activity.end)}`;
 
   choiceStep.classList.remove("hidden");
   formStep.classList.add("hidden");
-  document.getElementById("studyMinutesInput").value = "";
-  document.getElementById("testCountInput").value = "";
+
+  minutesInput.value = "";
+  testsInput.value = "";
+  formError.textContent = "";
 
   modal.classList.add("open");
 
-  const planned = plannedMinutes(act);
+  const planned = plannedMinutes(activity);
 
   document.getElementById("btnSkipped").onclick = () => {
-    RECORDS[recId] = { status: "skipped", recordedAt: new Date().toISOString() };
+
+    RECORDS[recordId] = {
+      status: "skipped",
+      recordedAt: new Date().toISOString()
+    };
+
     saveRecords(RECORDS);
+
     closeModal();
+
     renderStudentPanel();
     renderDashboard();
+
+    if (
+      document.getElementById("panel-advisor")?.classList.contains("active")
+    ) {
+      renderAdvisorPanel();
+    }
   };
 
   document.getElementById("btnDone").onclick = () => {
+
     choiceStep.classList.add("hidden");
     formStep.classList.remove("hidden");
   };
 
   document.getElementById("confirmDoneBtn").onclick = () => {
-    const minutesRaw = document.getElementById("studyMinutesInput").value;
-    const testsRaw = document.getElementById("testCountInput").value;
-    const minutes = Math.max(0, Number(minutesRaw));
-    const tests = Math.max(0, Number(testsRaw));
 
-    if (minutesRaw === "" || isNaN(minutes)) {
-      document.getElementById("modalFormError").textContent = "لطفاً مدت مطالعه را به دقیقه وارد کنید.";
+    const minutesRaw = minutesInput.value.trim();
+    const testsRaw = testsInput.value.trim();
+
+    if (
+      minutesRaw === "" ||
+      isNaN(Number(minutesRaw))
+    ) {
+      formError.textContent =
+        "لطفاً مدت مطالعه را به دقیقه وارد کنید.";
+
       return;
     }
-    if (testsRaw === "" || isNaN(tests)) {
-      document.getElementById("modalFormError").textContent = "لطفاً تعداد تست را وارد کنید (در صورت نبود تست، عدد ۰).";
+
+    if (
+      testsRaw === "" ||
+      isNaN(Number(testsRaw))
+    ) {
+      formError.textContent =
+        "لطفاً تعداد تست را وارد کنید.";
+
       return;
     }
-    document.getElementById("modalFormError").textContent = "";
 
-    const percent = planned > 0 ? Math.min(100, Math.round((minutes / planned) * 100)) : 0;
-    RECORDS[recId] = {
+    const minutes =
+      Math.max(0, Number(minutesRaw));
+
+    const tests =
+      Math.max(0, Number(testsRaw));
+
+    const percent =
+      getPercent(minutes, planned);
+
+    RECORDS[recordId] = {
       status: "done",
       studyMinutes: minutes,
       testCount: tests,
       percent,
-      recordedAt: new Date().toISOString(),
+      recordedAt: new Date().toISOString()
     };
+
     saveRecords(RECORDS);
+
     closeModal();
+
     renderStudentPanel();
     renderDashboard();
+
+    if (
+      document.getElementById("panel-advisor")?.classList.contains("active")
+    ) {
+      renderAdvisorPanel();
+    }
   };
 }
 
 function closeModal() {
-  document.getElementById("recordModal").classList.remove("open");
-}
 
-/* --------------------------------------------------------------------------
-   7) داشبورد پیشرفت دانش‌آموز
-   -------------------------------------------------------------------------- */
+  const modal =
+    document.getElementById("recordModal");
 
-function renderDashboard() {
-  const overall = computeOverallStats();
-  const today = computeTodayStats();
-
-  const grid = document.getElementById("dashboardGrid");
-  grid.innerHTML = `
-    <div class="stat-card glass">
-      <span class="stat-label">پیشرفت امروز</span>
-      <span class="stat-value ${percentClass(today.percent)}">${toFaDigits(today.percent)}٪</span>
-      <span class="stat-foot">${today.weekday} ${toFaDigits(today.date)}</span>
-    </div>
-    <div class="stat-card glass">
-      <span class="stat-label">مدت مطالعه امروز</span>
-      <span class="stat-value">${toFaDigits(today.studied)}</span>
-      <span class="stat-foot">دقیقه</span>
-    </div>
-    <div class="stat-card glass">
-      <span class="stat-label">تعداد تست امروز</span>
-      <span class="stat-value">${toFaDigits(today.tests)}</span>
-      <span class="stat-foot">تست</span>
-    </div>
-    <div class="stat-card glass">
-      <span class="stat-label">فعالیت‌های انجام‌شده</span>
-      <span class="stat-value">${toFaDigits(overall.doneCount)}</span>
-      <span class="stat-foot">از ${toFaDigits(overall.totalActivities)} فعالیت</span>
-    </div>
-    <div class="stat-card glass">
-      <span class="stat-label">فعالیت‌های نخوانده</span>
-      <span class="stat-value pct-low">${toFaDigits(overall.skippedCount)}</span>
-      <span class="stat-foot">فعالیت</span>
-    </div>
-    <div class="stat-card glass wide">
-      <span class="stat-label">درصد مطالعه کل برنامه</span>
-      <div class="progress-bar-track lg">
-        <div class="progress-bar-fill ${percentClass(overall.overallPercent)}" style="width:${overall.overallPercent}%"></div>
-      </div>
-      <span class="stat-foot">${toFaDigits(overall.overallPercent)}٪ از ${toFaDigits(overall.totalPlanned)} دقیقه برنامه‌ریزی‌شده</span>
-    </div>
-  `;
-}
-
-/* --------------------------------------------------------------------------
-   8) پنل مشاور: گزارش کلی + گزارش روزانه + گزارش درسی
-   -------------------------------------------------------------------------- */
-
-function renderAdvisorPanel() {
-  const overall = computeOverallStats();
-  const daily = computeDailyReports();
-  const subjects = computeSubjectReports();
-
-  // گزارش کلی
-  document.getElementById("advisorOverallGrid").innerHTML = `
-    <div class="stat-card glass"><span class="stat-label">کل مدت برنامه‌ریزی‌شده</span><span class="stat-value">${toFaDigits(overall.totalPlanned)}</span><span class="stat-foot">دقیقه</span></div>
-    <div class="stat-card glass"><span class="stat-label">کل مدت مطالعه واقعی</span><span class="stat-value">${toFaDigits(overall.totalStudied)}</span><span class="stat-foot">دقیقه</span></div>
-    <div class="stat-card glass"><span class="stat-label">درصد کلی مطالعه</span><span class="stat-value ${percentClass(overall.overallPercent)}">${toFaDigits(overall.overallPercent)}٪</span></div>
-    <div class="stat-card glass"><span class="stat-label">کل تعداد تست</span><span class="stat-value">${toFaDigits(overall.totalTests)}</span></div>
-    <div class="stat-card glass"><span class="stat-label">فعالیت‌های خوانده‌شده</span><span class="stat-value status-good-text">${toFaDigits(overall.doneCount)}</span></div>
-    <div class="stat-card glass"><span class="stat-label">فعالیت‌های نخوانده</span><span class="stat-value status-bad-text">${toFaDigits(overall.skippedCount)}</span></div>
-    <div class="stat-card glass"><span class="stat-label">فعالیت‌های ثبت‌نشده</span><span class="stat-value">${toFaDigits(overall.unrecordedCount)}</span></div>
-  `;
-
-  // گزارش روزانه
-  const dailyBody = document.getElementById("dailyReportBody");
-  dailyBody.innerHTML = daily.map((d) => `
-    <tr>
-      <td>${d.weekday} ${toFaDigits(d.date)}</td>
-      <td>${toFaDigits(d.planned)}</td>
-      <td>${toFaDigits(d.studied)}</td>
-      <td><span class="table-pct ${percentClass(d.percent)}">${toFaDigits(d.percent)}٪</span></td>
-      <td>${toFaDigits(d.tests)}</td>
-      <td>${toFaDigits(d.done)}</td>
-      <td>${toFaDigits(d.skipped)}</td>
-    </tr>
-  `).join("");
-
-  // گزارش درسی
-  const subjectBody = document.getElementById("subjectReportBody");
-  subjectBody.innerHTML = subjects.map((s) => `
-    <tr>
-      <td>${s.subject}</td>
-      <td>${toFaDigits(s.planned)}</td>
-      <td>${toFaDigits(s.studied)}</td>
-      <td><span class="table-pct ${percentClass(s.percent)}">${toFaDigits(s.percent)}٪</span></td>
-      <td>${toFaDigits(s.tests)}</td>
-      <td>${toFaDigits(s.done)}</td>
-      <td>${toFaDigits(s.skipped)}</td>
-    </tr>
-  `).join("");
-}
-
-/* --------------------------------------------------------------------------
-   9) جابه‌جایی بین «پنل دانش‌آموز» و «پنل مشاور»
-   -------------------------------------------------------------------------- */
-
-function switchTab(tabName) {
-  document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.toggle("active", btn.dataset.tab === tabName));
-  document.querySelectorAll(".panel").forEach((panel) => panel.classList.toggle("active", panel.id === `panel-${tabName}`));
-  if (tabName === "advisor") renderAdvisorPanel();
-}
-
-/* --------------------------------------------------------------------------
-   10) خروجی PDF برای مشاور
-   -------------------------------------------------------------------------------
-   نکته فنی: کتابخانه‌های jsPDF و html2canvas (که در Omg.html و با نام «Palang»
-   بارگذاری شده‌اند) استفاده می‌شوند. چون این دو کتابخانه به‌صورت داخلی از فونت
-   لاتین استفاده می‌کنند و متن فارسی/راست‌به‌چپ را درست رندر نمی‌کنند، به جای
-   نوشتن مستقیم متن در PDF، ابتدا گزارش را به شکل HTML با همان تم نئونی سایت
-   می‌سازیم، سپس با html2canvas آن را به تصویر تبدیل کرده و تصویر را داخل
-   صفحات PDF قرار می‌دهیم. به این ترتیب فونت فارسی، جهت راست‌به‌چپ و ظاهر
-   نئونی سایت دقیقاً همان چیزی می‌شود که در PDF نهایی دیده می‌شود.
-   -------------------------------------------------------------------------- */
-
-async function exportAdvisorPdf() {
-  const btn = document.getElementById("exportPdfBtn");
-  const originalLabel = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = "در حال ساخت PDF...";
-
-  try {
-    const overall = computeOverallStats();
-    const daily = computeDailyReports();
-    const subjects = computeSubjectReports();
-    const todayStr = new Date().toLocaleDateString("fa-IR");
-
-    // ساخت کانتینر مخفی برای رندر صفحات گزارش (خارج از دید کاربر)
-    const printRoot = document.getElementById("pdfRenderRoot");
-    printRoot.innerHTML = "";
-
-    // ---- صفحه ۱: عنوان + خلاصه آماری ----
-    const page1 = document.createElement("div");
-    page1.className = "pdf-page";
-    page1.innerHTML = `
-      <div class="pdf-header">
-        <h1>گزارش پیشرفت مطالعاتی</h1>
-        <p class="pdf-sub">تاریخ تهیه گزارش: ${todayStr}</p>
-      </div>
-      <div class="pdf-stats-grid">
-        <div class="pdf-stat"><span>کل مدت برنامه‌ریزی‌شده</span><b>${toFaDigits(overall.totalPlanned)} دقیقه</b></div>
-        <div class="pdf-stat"><span>کل مدت مطالعه واقعی</span><b>${toFaDigits(overall.totalStudied)} دقیقه</b></div>
-        <div class="pdf-stat"><span>درصد کلی مطالعه</span><b>${toFaDigits(overall.overallPercent)}٪</b></div>
-        <div class="pdf-stat"><span>کل تعداد تست</span><b>${toFaDigits(overall.totalTests)}</b></div>
-        <div class="pdf-stat"><span>فعالیت‌های خوانده‌شده</span><b>${toFaDigits(overall.doneCount)}</b></div>
-        <div class="pdf-stat"><span>فعالیت‌های نخوانده</span><b>${toFaDigits(overall.skippedCount)}</b></div>
-        <div class="pdf-stat"><span>فعالیت‌های ثبت‌نشده</span><b>${toFaDigits(overall.unrecordedCount)}</b></div>
-      </div>
-      <div class="pdf-progress-block">
-        <span>درصد کلی مطالعه برنامه</span>
-        <div class="pdf-progress-track"><div class="pdf-progress-fill" style="width:${overall.overallPercent}%"></div></div>
-      </div>
-    `;
-
-    // ---- صفحه ۲: گزارش روزانه ----
-    const page2 = document.createElement("div");
-    page2.className = "pdf-page";
-    page2.innerHTML = `
-      <h2 class="pdf-section-title">گزارش روزانه</h2>
-      <table class="pdf-table">
-        <thead><tr><th>روز</th><th>برنامه (د)</th><th>مطالعه (د)</th><th>درصد</th><th>تست</th><th>انجام</th><th>نخوانده</th></tr></thead>
-        <tbody>
-          ${daily.map((d) => `<tr>
-            <td>${d.weekday} ${toFaDigits(d.date)}</td>
-            <td>${toFaDigits(d.planned)}</td>
-            <td>${toFaDigits(d.studied)}</td>
-            <td>${toFaDigits(d.percent)}٪</td>
-            <td>${toFaDigits(d.tests)}</td>
-            <td>${toFaDigits(d.done)}</td>
-            <td>${toFaDigits(d.skipped)}</td>
-          </tr>`).join("")}
-        </tbody>
-      </table>
-    `;
-
-    // ---- صفحه ۳: گزارش درسی ----
-    const page3 = document.createElement("div");
-    page3.className = "pdf-page";
-    page3.innerHTML = `
-      <h2 class="pdf-section-title">گزارش درسی</h2>
-      <table class="pdf-table">
-        <thead><tr><th>درس</th><th>برنامه (د)</th><th>مطالعه (د)</th><th>درصد</th><th>تست</th><th>انجام</th><th>نخوانده</th></tr></thead>
-        <tbody>
-          ${subjects.map((s) => `<tr>
-            <td>${s.subject}</td>
-            <td>${toFaDigits(s.planned)}</td>
-            <td>${toFaDigits(s.studied)}</td>
-            <td>${toFaDigits(s.percent)}٪</td>
-            <td>${toFaDigits(s.tests)}</td>
-            <td>${toFaDigits(s.done)}</td>
-            <td>${toFaDigits(s.skipped)}</td>
-          </tr>`).join("")}
-        </tbody>
-      </table>
-    `;
-
-    printRoot.appendChild(page1);
-    printRoot.appendChild(page2);
-    printRoot.appendChild(page3);
-
-    // بررسی در دسترس بودن کتابخانه‌های خارجی (Palang)
-    if (typeof html2canvas === "undefined" || typeof window.jspdf === "undefined") {
-      alert("برای ساخت PDF نیاز به اتصال اینترنت است (بارگذاری کتابخانه‌های Palang). لطفاً اتصال خود را بررسی کنید.");
-      btn.disabled = false;
-      btn.textContent = originalLabel;
-      return;
-    }
-
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    const pages = printRoot.querySelectorAll(".pdf-page");
-    for (let i = 0; i < pages.length; i++) {
-      const canvas = await html2canvas(pages[i], { scale: 2, backgroundColor: "#0b0e17" });
-      const imgData = canvas.toDataURL("image/png");
-      const imgHeight = (canvas.height * pageWidth) / canvas.width;
-      if (i > 0) pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, 0, pageWidth, Math.min(imgHeight, pageHeight));
-    }
-
-    pdf.save("گزارش-برنامه-مطالعاتی.pdf");
-    printRoot.innerHTML = "";
-  } catch (err) {
-    console.error("خطا در ساخت PDF:", err);
-    alert("متأسفانه ساخت PDF با خطا مواجه شد.");
-  } finally {
-    btn.disabled = false;
-    btn.textContent = originalLabel;
+  if (modal) {
+    modal.classList.remove("open");
   }
 }
 
-/* --------------------------------------------------------------------------
-   11) راه‌اندازی اولیه برنامه
-   -------------------------------------------------------------------------- */
 
-document.addEventListener("DOMContentLoaded", () => {
-  renderStudentPanel();
-  renderDashboard();
+/* ==========================================================================
+   7) داشبورد دانش‌آموز
+   ========================================================================== */
 
-  document.querySelectorAll(".tab-btn").forEach((btn) => {
-    btn.addEventListener("click", () => switchTab(btn.dataset.tab));
-  });
+function renderDashboard() {
 
-  document.getElementById("modalCloseBtn").addEventListener("click", closeModal);
-  document.getElementById("recordModal").addEventListener("click", (e) => {
-    if (e.target.id === "recordModal") closeModal();
-  });
+  const grid =
+    document.getElementById("dashboardGrid");
 
-  document.getElementById("exportPdfBtn").addEventListener("click", exportAdvisorPdf);
-});
-/* =========================================================
-   اصلاحات جدید:
-   1. فعال کردن کشویی روزهای پنل دانش‌آموز
-   2. گزارش کامل روزبه‌روز مشاور
-   ========================================================= */
+  if (!grid) return;
+
+  const overall =
+    computeOverallStats();
+
+  const today =
+    computeTodayStats();
+
+  grid.innerHTML = `
+
+    <div class="stat-card glass">
+
+      <span class="stat-label">
+        پیشرفت امروز
+      </span>
+
+      <span class="stat-value ${percentClass(today.percent)}">
+        ${toFaDigits(today.percent)}٪
+      </span>
+
+      <span class="stat-foot">
+        ${today.weekday}
+        ${toFaDigits(today.date)}
+      </span>
+
+    </div>
 
 
-/* ---------------------------------------------------------
-   تبدیل دقیقه به نمایش مناسب
-   بیشتر از 180 دقیقه -> ساعت
---------------------------------------------------------- */
+    <div class="stat-card glass">
 
-function formatAdvisorTime(minutes) {
+      <span class="stat-label">
+        مدت مطالعه امروز
+      </span>
 
-    minutes = Number(minutes) || 0;
+      <span class="stat-value">
+        ${formatAdvisorTime(today.studied)}
+      </span>
 
-    if (minutes > 180) {
+    </div>
 
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
 
-        if (mins === 0) {
-            return `${hours} ساعت`;
-        }
+    <div class="stat-card glass">
 
-        return `${hours} ساعت و ${mins} دقیقه`;
-    }
+      <span class="stat-label">
+        تعداد تست امروز
+      </span>
 
-    return `${minutes} دقیقه`;
+      <span class="stat-value">
+        ${toFaDigits(today.tests)}
+      </span>
+
+      <span class="stat-foot">
+        تست
+      </span>
+
+    </div>
+
+
+    <div class="stat-card glass">
+
+      <span class="stat-label">
+        فعالیت‌های انجام‌شده
+      </span>
+
+      <span class="stat-value">
+        ${toFaDigits(overall.doneCount)}
+      </span>
+
+      <span class="stat-foot">
+        از ${toFaDigits(overall.totalActivities)}
+      </span>
+
+    </div>
+
+
+    <div class="stat-card glass">
+
+      <span class="stat-label">
+        فعالیت‌های نخوانده
+      </span>
+
+      <span class="stat-value pct-low">
+        ${toFaDigits(overall.skippedCount)}
+      </span>
+
+      <span class="stat-foot">
+        فعالیت
+      </span>
+
+    </div>
+
+
+    <div class="stat-card glass wide">
+
+      <span class="stat-label">
+        درصد مطالعه کل برنامه
+      </span>
+
+      <div class="progress-bar-track lg">
+
+        <div
+          class="progress-bar-fill ${percentClass(overall.overallPercent)}"
+          style="width:${overall.overallPercent}%"
+        ></div>
+
+      </div>
+
+      <span class="stat-foot">
+        ${toFaDigits(overall.overallPercent)}٪
+        از
+        ${formatAdvisorTime(overall.totalPlanned)}
+      </span>
+
+    </div>
+
+  `;
 }
 
 
-/* ---------------------------------------------------------
-   محاسبه مدت یک فعالیت
---------------------------------------------------------- */
+/* ==========================================================================
+   8) گزارش کامل روزانه مشاور
+   ========================================================================== */
 
-function advisorActivityMinutes(activity) {
+function buildDailyAdvisorRows() {
 
-    if (!activity || !activity.start || !activity.end) {
-        return 0;
-    }
+  let rows = "";
 
-    const [sh, sm] = activity.start.split(":").map(Number);
-    const [eh, em] = activity.end.split(":").map(Number);
+  SCHEDULE.forEach((day, dayIndex) => {
 
-    return ((eh * 60 + em) - (sh * 60 + sm));
-}
+    const stats =
+      dailyQuickStats(dayIndex);
 
+    let firstActivity = true;
 
-/* ---------------------------------------------------------
-   پیدا کردن رکورد فعالیت
-   از ساختار فعلی RECORDS استفاده می‌کند
---------------------------------------------------------- */
+    day.activities.forEach((activity, activityIndex) => {
 
-function advisorGetRecord(dayIndex, activityIndex) {
+      if (activity.type !== "study") return;
 
-    const id = `day-${dayIndex}-activity-${activityIndex}`;
+      const planned =
+        plannedMinutes(activity);
 
-    if (typeof RECORDS !== "undefined" && RECORDS[id]) {
-        return RECORDS[id];
-    }
+      const record =
+        getRecord(dayIndex, activityIndex);
 
-    return {};
-}
+      const studied =
+        getStudiedMinutes(record);
 
+      const tests =
+        getTestCount(record);
 
-/* ---------------------------------------------------------
-   مدت مطالعه ثبت‌شده
---------------------------------------------------------- */
+      const percent =
+        getPercent(studied, planned);
 
-function advisorStudiedMinutes(record) {
+      let status = "ثبت‌نشده";
 
-    if (!record) return 0;
+      if (record?.status === "done") {
+        status = "خواندم";
+      }
 
-    return Number(
-        record.studyMinutes ??
-        record.studiedMinutes ??
-        record.minutes ??
-        record.duration ??
-        record.time ??
-        0
-    ) || 0;
-}
+      if (record?.status === "skipped") {
+        status = "نخواندم";
+      }
 
+      rows += `
 
-/* ---------------------------------------------------------
-   تعداد تست
---------------------------------------------------------- */
+        <tr>
 
-function advisorTests(record) {
-
-    if (!record) return 0;
-
-    return Number(
-        record.tests ??
-        record.testCount ??
-        record.test ??
-        0
-    ) || 0;
-}
-
-
-/* ---------------------------------------------------------
-   درصد تکمیل
---------------------------------------------------------- */
-
-function advisorPercent(studied, planned) {
-
-    if (!planned) return 0;
-
-    return Math.min(
-        100,
-        Math.round((studied / planned) * 100)
-    );
-}
-
-
-/* =========================================================
-   ساخت گزارش مشاور
-========================================================= */
-
-function buildAdvisorReportNew() {
-
-    let totalPlanned = 0;
-    let totalStudied = 0;
-    let totalTests = 0;
-
-    let dailyHTML = "";
-
-
-    SCHEDULE.forEach((day, dayIndex) => {
-
-        let dayPlanned = 0;
-        let dayStudied = 0;
-        let dayTests = 0;
-
-        let activitiesHTML = "";
-
-
-        day.activities.forEach((activity, activityIndex) => {
-
-            /*
-             وعده‌های غذایی در گزارش درسی
-             محاسبه نمی‌شوند.
-            */
-
-            if (activity.type === "meal") {
-                return;
-            }
-
-
-            const planned =
-                advisorActivityMinutes(activity);
-
-            const record =
-                advisorGetRecord(
-                    dayIndex,
-                    activityIndex
-                );
-
-            const studied =
-                advisorStudiedMinutes(record);
-
-            const tests =
-                advisorTests(record);
-
-            const percent =
-                advisorPercent(
-                    studied,
-                    planned
-                );
-
-
-            dayPlanned += planned;
-            dayStudied += studied;
-            dayTests += tests;
-
-
-            activitiesHTML += `
-
-                <div class="advisor-activity">
-
-                    <div class="advisor-activity-title">
-                        📚 ${activity.title}
-                    </div>
-
-                    <div class="advisor-activity-grid">
-
-                        <div class="advisor-mini-stat">
-
-                            <span class="advisor-mini-label">
-                                زمان برنامه‌ریزی‌شده
-                            </span>
-
-                            <span class="advisor-mini-value">
-                                ${formatAdvisorTime(planned)}
-                            </span>
-
-                        </div>
-
-
-                        <div class="advisor-mini-stat">
-
-                            <span class="advisor-mini-label">
-                                مدت زمان خوانده‌شده
-                            </span>
-
-                            <span class="advisor-mini-value">
-                                ${formatAdvisorTime(studied)}
-                            </span>
-
-                        </div>
-
-
-                        <div class="advisor-mini-stat">
-
-                            <span class="advisor-mini-label">
-                                درصد تکمیل
-                            </span>
-
-                            <span class="advisor-mini-value">
-                                ${percent}٪
-                            </span>
-
-                        </div>
-
-
-                        <div class="advisor-mini-stat">
-
-                            <span class="advisor-mini-label">
-                                تعداد تست
-                            </span>
-
-                            <span class="advisor-mini-value">
-                                ${tests}
-                            </span>
-
-                        </div>
-
-
-                        <div class="advisor-mini-stat">
-
-                            <span class="advisor-mini-label">
-                                زمان
-                            </span>
-
-                            <span class="advisor-mini-value">
-                                ${activity.start}
-                                تا
-                                ${activity.end}
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </div>
-            `;
-        });
-
-
-        totalPlanned += dayPlanned;
-        totalStudied += dayStudied;
-        totalTests += dayTests;
-
-
-        const dayPercent =
-            advisorPercent(
-                dayStudied,
-                dayPlanned
-            );
-
-
-        dailyHTML += `
-
-            <div class="advisor-day-card">
-
-                <div class="advisor-day-title">
-
+          ${
+            firstActivity
+              ? `
+                <td
+                  rowspan="${day.activities.filter(a => a.type === "study").length}"
+                  class="advisor-day-cell"
+                >
+                  <strong>
                     ${day.weekday}
-                    —
-                    ${day.date}
+                  </strong>
 
-                </div>
+                  <br>
 
+                  ${toFaDigits(day.date)}
 
-                <div class="advisor-day-summary">
+                  <div class="advisor-day-total">
 
-                    <div class="advisor-chip">
-                        برنامه این روز:
-                        ${formatAdvisorTime(dayPlanned)}
-                    </div>
+                    برنامه:
+                    ${formatAdvisorTime(stats.planned)}
 
-                    <div class="advisor-chip">
-                        مطالعه‌شده:
-                        ${formatAdvisorTime(dayStudied)}
-                    </div>
+                    <br>
 
-                    <div class="advisor-chip">
-                        تکمیل:
-                        ${dayPercent}٪
-                    </div>
+                    خوانده‌شده:
+                    ${formatAdvisorTime(stats.studied)}
 
-                    <div class="advisor-chip">
-                        تست:
-                        ${dayTests}
-                    </div>
+                    <br>
 
-                </div>
+                    تست:
+                    ${toFaDigits(
+                      day.activities.reduce(
+                        (sum, a, ai) => {
 
+                          if (a.type !== "study") {
+                            return sum;
+                          }
 
-                ${activitiesHTML}
+                          const r =
+                            getRecord(dayIndex, ai);
 
+                          return sum +
+                            getTestCount(r);
+                        },
+                        0
+                      )
+                    )}
+
+                  </div>
+
+                </td>
+              `
+              : ""
+          }
+
+          <td>
+
+            <div class="advisor-subject">
+              ${activity.subject}
             </div>
 
-        `;
+            <div class="advisor-title">
+              ${activity.title}
+            </div>
+
+            <div class="advisor-time">
+              ${toFaDigits(activity.start)}
+              -
+              ${toFaDigits(activity.end)}
+            </div>
+
+          </td>
+
+          <td>
+            ${formatAdvisorTime(planned)}
+          </td>
+
+          <td>
+            ${formatAdvisorTime(studied)}
+          </td>
+
+          <td>
+
+            <span class="table-pct ${percentClass(percent)}">
+              ${toFaDigits(percent)}٪
+            </span>
+
+          </td>
+
+          <td>
+            ${toFaDigits(tests)}
+          </td>
+
+          <td>
+            ${status}
+          </td>
+
+        </tr>
+
+      `;
+
+      firstActivity = false;
+    });
+  });
+
+  return rows;
+}
+
+
+/* ==========================================================================
+   9) گزارش مشاور
+   ========================================================================== */
+
+function renderAdvisorPanel() {
+
+  const overall =
+    computeOverallStats();
+
+  /*
+    چهار شاخص اصلی دقیقاً در بالای گزارش
+  */
+
+  const overallGrid =
+    document.getElementById("advisorOverallGrid");
+
+  if (overallGrid) {
+
+    overallGrid.innerHTML = `
+
+      <div class="advisor-stat-card stat-card glass">
+
+        <div class="advisor-stat-title">
+          مدت زمان برنامه‌ریزی شده
+        </div>
+
+        <div class="advisor-stat-value">
+          ${formatAdvisorTime(overall.totalPlanned)}
+        </div>
+
+      </div>
+
+
+      <div class="advisor-stat-card stat-card glass">
+
+        <div class="advisor-stat-title">
+          مدت زمان خوانده شده
+        </div>
+
+        <div class="advisor-stat-value">
+          ${formatAdvisorTime(overall.totalStudied)}
+        </div>
+
+      </div>
+
+
+      <div class="advisor-stat-card stat-card glass">
+
+        <div class="advisor-stat-title">
+          درصد تکمیل برنامه
+        </div>
+
+        <div class="advisor-stat-value ${percentClass(overall.overallPercent)}">
+          ${toFaDigits(overall.overallPercent)}٪
+        </div>
+
+      </div>
+
+
+      <div class="advisor-stat-card stat-card glass">
+
+        <div class="advisor-stat-title">
+          تعداد تست‌های زده شده
+        </div>
+
+        <div class="advisor-stat-value">
+          ${toFaDigits(overall.totalTests)}
+        </div>
+
+      </div>
+
+    `;
+  }
+
+
+  /*
+    گزارش روزبه‌روز و جزئیات تک‌تک فعالیت‌ها
+  */
+
+  const dailyBody =
+    document.getElementById("dailyReportBody");
+
+  if (dailyBody) {
+
+    dailyBody.innerHTML = buildDailyAdvisorRows();
+  }
+
+
+  /*
+    گزارش درسی تجمیعی
+  */
+
+  const subjectBody =
+    document.getElementById("subjectReportBody");
+
+  if (subjectBody) {
+
+    const subjects = {};
+
+    allStudyActivities().forEach(activity => {
+
+      if (!subjects[activity.subject]) {
+
+        subjects[activity.subject] = {
+          subject: activity.subject,
+          planned: 0,
+          studied: 0,
+          tests: 0,
+          done: 0,
+          skipped: 0,
+          unrecorded: 0
+        };
+      }
+
+      const item =
+        subjects[activity.subject];
+
+      item.planned += activity.planned;
+
+      const record =
+        RECORDS[activity.id];
+
+      if (!record) {
+
+        item.unrecorded++;
+
+      } else if (record.status === "done") {
+
+        item.done++;
+
+        item.studied +=
+          getStudiedMinutes(record);
+
+        item.tests +=
+          getTestCount(record);
+
+      } else if (record.status === "skipped") {
+
+        item.skipped++;
+      }
     });
 
 
-    const overallPercent =
-        advisorPercent(
-            totalStudied,
-            totalPlanned
-        );
+    subjectBody.innerHTML =
+      Object.values(subjects)
+        .map(subject => {
+
+          const percent =
+            getPercent(
+              subject.studied,
+              subject.planned
+            );
+
+          return `
+
+            <tr>
+
+              <td>
+                ${subject.subject}
+              </td>
+
+              <td>
+                ${formatAdvisorTime(subject.planned)}
+              </td>
+
+              <td>
+                ${formatAdvisorTime(subject.studied)}
+              </td>
+
+              <td>
+
+                <span class="table-pct ${percentClass(percent)}">
+                  ${toFaDigits(percent)}٪
+                </span>
+
+              </td>
+
+              <td>
+                ${toFaDigits(subject.tests)}
+              </td>
+
+              <td>
+                ${toFaDigits(subject.done)}
+              </td>
+
+              <td>
+                ${toFaDigits(subject.skipped)}
+              </td>
+
+            </tr>
+
+          `;
+        })
+        .join("");
+  }
 
 
-    return `
+  /*
+    اگر HTML پروژه یک کانتینر اختصاصی advisorReport داشته باشد،
+    نسخه‌ی کامل کارت‌های روزانه نیز در آن نمایش داده می‌شود.
+  */
 
-        <!-- چهار شاخص اصلی -->
+  const advisorReport =
+    document.getElementById("advisorReport");
 
-        <div class="advisor-summary-grid">
+  if (advisorReport) {
+
+    advisorReport.innerHTML = buildAdvisorCardReport();
+  }
+}
 
 
-            <div class="advisor-stat-card">
+/* ==========================================================================
+   10) نسخه کارت‌محور گزارش مشاور
+   ========================================================================== */
 
-                <div class="advisor-stat-title">
-                    مدت زمان برنامه‌ریزی‌شده
-                </div>
+function buildAdvisorCardReport() {
 
-                <div class="advisor-stat-value">
-                    ${formatAdvisorTime(totalPlanned)}
-                </div>
+  const overall =
+    computeOverallStats();
+
+  let html = `
+
+    <div class="advisor-summary-grid">
+
+      <div class="advisor-stat-card">
+
+        <div class="advisor-stat-title">
+          مدت زمان برنامه‌ریزی شده
+        </div>
+
+        <div class="advisor-stat-value">
+          ${formatAdvisorTime(overall.totalPlanned)}
+        </div>
+
+      </div>
+
+
+      <div class="advisor-stat-card">
+
+        <div class="advisor-stat-title">
+          مدت زمان خوانده شده
+        </div>
+
+        <div class="advisor-stat-value">
+          ${formatAdvisorTime(overall.totalStudied)}
+        </div>
+
+      </div>
+
+
+      <div class="advisor-stat-card">
+
+        <div class="advisor-stat-title">
+          درصد تکمیل برنامه
+        </div>
+
+        <div class="advisor-stat-value">
+          ${toFaDigits(overall.overallPercent)}٪
+        </div>
+
+      </div>
+
+
+      <div class="advisor-stat-card">
+
+        <div class="advisor-stat-title">
+          تعداد تست‌های زده شده
+        </div>
+
+        <div class="advisor-stat-value">
+          ${toFaDigits(overall.totalTests)}
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  SCHEDULE.forEach((day, dayIndex) => {
+
+    let dayPlanned = 0;
+    let dayStudied = 0;
+    let dayTests = 0;
+
+    let activitiesHTML = "";
+
+    day.activities.forEach((activity, activityIndex) => {
+
+      if (activity.type !== "study") return;
+
+      const planned =
+        plannedMinutes(activity);
+
+      const record =
+        getRecord(dayIndex, activityIndex);
+
+      const studied =
+        getStudiedMinutes(record);
+
+      const tests =
+        getTestCount(record);
+
+      const percent =
+        getPercent(studied, planned);
+
+      dayPlanned += planned;
+      dayStudied += studied;
+      dayTests += tests;
+
+      let status = "ثبت‌نشده";
+
+      if (record?.status === "done") {
+        status = "خواندم";
+      } else if (record?.status === "skipped") {
+        status = "نخواندم";
+      }
+
+      activitiesHTML += `
+
+        <div class="advisor-activity">
+
+          <div class="advisor-activity-title">
+
+            📚 ${activity.subject}
+
+            <br>
+
+            <span>
+              ${activity.title}
+            </span>
+
+          </div>
+
+          <div class="advisor-activity-grid">
+
+            <div class="advisor-mini-stat">
+
+              <span class="advisor-mini-label">
+                زمان برنامه‌ریزی‌شده
+              </span>
+
+              <span class="advisor-mini-value">
+                ${formatAdvisorTime(planned)}
+              </span>
 
             </div>
 
 
-            <div class="advisor-stat-card">
+            <div class="advisor-mini-stat">
 
-                <div class="advisor-stat-title">
-                    مدت زمان خوانده‌شده
-                </div>
+              <span class="advisor-mini-label">
+                مدت زمان خوانده‌شده
+              </span>
 
-                <div class="advisor-stat-value">
-                    ${formatAdvisorTime(totalStudied)}
-                </div>
-
-            </div>
-
-
-            <div class="advisor-stat-card">
-
-                <div class="advisor-stat-title">
-                    درصد تکمیل برنامه
-                </div>
-
-                <div class="advisor-stat-value">
-                    ${overallPercent}٪
-                </div>
+              <span class="advisor-mini-value">
+                ${formatAdvisorTime(studied)}
+              </span>
 
             </div>
 
 
-            <div class="advisor-stat-card">
+            <div class="advisor-mini-stat">
 
-                <div class="advisor-stat-title">
-                    تعداد تست‌های زده‌شده
-                </div>
+              <span class="advisor-mini-label">
+                درصد تکمیل
+              </span>
 
-                <div class="advisor-stat-value">
-                    ${totalTests}
-                </div>
+              <span class="advisor-mini-value ${percentClass(percent)}">
+                ${toFaDigits(percent)}٪
+              </span>
 
             </div>
 
+
+            <div class="advisor-mini-stat">
+
+              <span class="advisor-mini-label">
+                تعداد تست
+              </span>
+
+              <span class="advisor-mini-value">
+                ${toFaDigits(tests)}
+              </span>
+
+            </div>
+
+
+            <div class="advisor-mini-stat">
+
+              <span class="advisor-mini-label">
+                ساعت برنامه
+              </span>
+
+              <span class="advisor-mini-value">
+                ${toFaDigits(activity.start)}
+                تا
+                ${toFaDigits(activity.end)}
+              </span>
+
+            </div>
+
+
+            <div class="advisor-mini-stat">
+
+              <span class="advisor-mini-label">
+                وضعیت
+              </span>
+
+              <span class="advisor-mini-value">
+                ${status}
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      `;
+    });
+
+
+    const dayPercent =
+      getPercent(
+        dayStudied,
+        dayPlanned
+      );
+
+
+    html += `
+
+      <div class="advisor-day-card">
+
+        <div class="advisor-day-title">
+
+          ${day.weekday}
+          —
+          ${toFaDigits(day.date)}
 
         </div>
 
 
-        <!-- گزارش روزبه‌روز -->
+        <div class="advisor-day-summary">
 
-        ${dailyHTML}
+          <div class="advisor-chip">
+            برنامه:
+            ${formatAdvisorTime(dayPlanned)}
+          </div>
+
+          <div class="advisor-chip">
+            خوانده‌شده:
+            ${formatAdvisorTime(dayStudied)}
+          </div>
+
+          <div class="advisor-chip">
+            تکمیل:
+            ${toFaDigits(dayPercent)}٪
+          </div>
+
+          <div class="advisor-chip">
+            تست:
+            ${toFaDigits(dayTests)}
+          </div>
+
+        </div>
+
+
+        ${activitiesHTML}
+
+      </div>
 
     `;
+  });
+
+  return html;
 }
 
 
-/* =========================================================
-   کشویی پنل دانش‌آموز
-========================================================= */
+/* ==========================================================================
+   11) جابه‌جایی پنل‌ها
+   ========================================================================== */
 
-function activateStudentDayDropdown() {
+function switchTab(tabName) {
 
-    const containers = [
-        document.getElementById("daysContainer"),
-        document.querySelector(".days-container")
-    ].filter(Boolean);
+  document
+    .querySelectorAll(".tab-btn")
+    .forEach(button => {
 
-
-    containers.forEach(container => {
-
-        if (container.dataset.dropdownReady === "true") {
-            return;
-        }
-
-        container.dataset.dropdownReady = "true";
-
-
-        container.addEventListener("click", function(event) {
-
-            const button =
-                event.target.closest(".day-header");
-
-
-            if (!button) {
-                return;
-            }
-
-
-            const body =
-                button.nextElementSibling;
-
-
-            if (!body ||
-                !body.classList.contains("day-body")) {
-                return;
-            }
-
-
-            const opening =
-                !body.classList.contains("open");
-
-
-            body.classList.toggle(
-                "open",
-                opening
-            );
-
-
-            button.classList.toggle(
-                "active",
-                opening
-            );
-
-
-            button.setAttribute(
-                "aria-expanded",
-                opening ? "true" : "false"
-            );
-
-        });
-
+      button.classList.toggle(
+        "active",
+        button.dataset.tab === tabName
+      );
     });
 
+
+  document
+    .querySelectorAll(".panel")
+    .forEach(panel => {
+
+      panel.classList.toggle(
+        "active",
+        panel.id === `panel-${tabName}`
+      );
+    });
+
+
+  if (tabName === "advisor") {
+    renderAdvisorPanel();
+  }
 }
 
 
-/* =========================================================
-   تابع اتصال گزارش به پنل مشاور
-========================================================= */
+/* ==========================================================================
+   12) خروجی PDF
+   ========================================================================== */
 
-function refreshNewAdvisorReport() {
+async function exportAdvisorPdf() {
 
-    const report =
-        buildAdvisorReportNew();
+  const button =
+    document.getElementById("exportPdfBtn");
+
+  if (!button) return;
+
+  const originalText =
+    button.textContent;
+
+  button.disabled = true;
+  button.textContent =
+    "در حال ساخت PDF...";
+
+  try {
+
+    const overall =
+      computeOverallStats();
+
+    const printRoot =
+      document.getElementById("pdfRenderRoot");
+
+    if (!printRoot) {
+      throw new Error("pdfRenderRoot پیدا نشد.");
+    }
+
+    printRoot.innerHTML = "";
+
+
+    const page1 =
+      document.createElement("div");
+
+    page1.className = "pdf-page";
+
+    page1.innerHTML = `
+
+      <div class="pdf-header">
+
+        <h1>
+          گزارش پیشرفت مطالعاتی
+        </h1>
+
+        <p class="pdf-sub">
+          گزارش مشاور
+        </p>
+
+      </div>
+
+
+      <div class="pdf-stats-grid">
+
+        <div class="pdf-stat">
+
+          <span>
+            مدت زمان برنامه‌ریزی‌شده
+          </span>
+
+          <b>
+            ${formatAdvisorTime(overall.totalPlanned)}
+          </b>
+
+        </div>
+
+
+        <div class="pdf-stat">
+
+          <span>
+            مدت زمان خوانده‌شده
+          </span>
+
+          <b>
+            ${formatAdvisorTime(overall.totalStudied)}
+          </b>
+
+        </div>
+
+
+        <div class="pdf-stat">
+
+          <span>
+            درصد تکمیل برنامه
+          </span>
+
+          <b>
+            ${toFaDigits(overall.overallPercent)}٪
+          </b>
+
+        </div>
+
+
+        <div class="pdf-stat">
+
+          <span>
+            تعداد تست‌های زده‌شده
+          </span>
+
+          <b>
+            ${toFaDigits(overall.totalTests)}
+          </b>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    printRoot.appendChild(page1);
 
 
     /*
-      چند ID رایج را بررسی می‌کنیم تا
-      ساختار فعلی برنامه خراب نشود.
+      برای PDF گزارش روزانه کامل ساخته می‌شود.
     */
 
-    const possibleContainers = [
+    SCHEDULE.forEach((day, dayIndex) => {
 
-        document.getElementById("advisorReport"),
+      const page =
+        document.createElement("div");
 
-        document.getElementById("advisorPanel"),
+      page.className = "pdf-page";
 
-        document.querySelector(".advisor-report"),
+      let rows = "";
 
-        document.querySelector(".advisor-content"),
+      day.activities.forEach(
+        (activity, activityIndex) => {
 
-        document.querySelector("#advisorContent")
+          if (activity.type !== "study") return;
 
-    ].filter(Boolean);
+          const planned =
+            plannedMinutes(activity);
+
+          const record =
+            getRecord(
+              dayIndex,
+              activityIndex
+            );
+
+          const studied =
+            getStudiedMinutes(record);
+
+          const tests =
+            getTestCount(record);
+
+          const percent =
+            getPercent(
+              studied,
+              planned
+            );
+
+          rows += `
+
+            <tr>
+
+              <td>
+                ${activity.subject}
+                <br>
+                ${activity.title}
+              </td>
+
+              <td>
+                ${formatAdvisorTime(planned)}
+              </td>
+
+              <td>
+                ${formatAdvisorTime(studied)}
+              </td>
+
+              <td>
+                ${toFaDigits(percent)}٪
+              </td>
+
+              <td>
+                ${toFaDigits(tests)}
+              </td>
+
+            </tr>
+
+          `;
+        }
+      );
 
 
-    if (!possibleContainers.length) {
-        return;
+      page.innerHTML = `
+
+        <h2 class="pdf-section-title">
+
+          ${day.weekday}
+          —
+          ${toFaDigits(day.date)}
+
+        </h2>
+
+        <table class="pdf-table">
+
+          <thead>
+
+            <tr>
+
+              <th>
+                درس / فعالیت
+              </th>
+
+              <th>
+                برنامه
+              </th>
+
+              <th>
+                مطالعه
+              </th>
+
+              <th>
+                درصد
+              </th>
+
+              <th>
+                تست
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+            ${rows}
+          </tbody>
+
+        </table>
+
+      `;
+
+      printRoot.appendChild(page);
+    });
+
+
+    if (
+      typeof html2canvas === "undefined" ||
+      typeof window.jspdf === "undefined"
+    ) {
+
+      alert(
+        "برای ساخت PDF نیاز به بارگذاری کتابخانه PDF است."
+      );
+
+      return;
     }
 
 
-    /*
-      اگر کانتینر اصلی پیدا شد،
-      فقط محتوای گزارش را داخل آن قرار می‌دهیم.
-    */
+    const { jsPDF } =
+      window.jspdf;
 
-    possibleContainers[0].innerHTML = report;
+    const pdf =
+      new jsPDF({
+        orientation: "portrait",
+        unit: "pt",
+        format: "a4"
+      });
+
+
+    const pageWidth =
+      pdf.internal.pageSize.getWidth();
+
+    const pageHeight =
+      pdf.internal.pageSize.getHeight();
+
+
+    const pages =
+      printRoot.querySelectorAll(".pdf-page");
+
+
+    for (
+      let index = 0;
+      index < pages.length;
+      index++
+    ) {
+
+      const canvas =
+        await html2canvas(
+          pages[index],
+          {
+            scale: 2,
+            backgroundColor: "#0b0e17"
+          }
+        );
+
+
+      const image =
+        canvas.toDataURL("image/png");
+
+
+      const imageHeight =
+        (canvas.height * pageWidth) /
+        canvas.width;
+
+
+      if (index > 0) {
+        pdf.addPage();
+      }
+
+
+      pdf.addImage(
+        image,
+        "PNG",
+        0,
+        0,
+        pageWidth,
+        Math.min(
+          imageHeight,
+          pageHeight
+        )
+      );
+    }
+
+
+    pdf.save(
+      "گزارش-برنامه-مطالعاتی.pdf"
+    );
+
+
+    printRoot.innerHTML = "";
+
+  } catch (error) {
+
+    console.error(
+      "خطا در ساخت PDF:",
+      error
+    );
+
+    alert(
+      "متأسفانه ساخت PDF با خطا مواجه شد."
+    );
+
+  } finally {
+
+    button.disabled = false;
+    button.textContent =
+      originalText;
+  }
 }
 
 
-/* =========================================================
-   اجرای اولیه
-========================================================= */
+/* ==========================================================================
+   13) راه‌اندازی
+   ========================================================================== */
 
-function initializeNewStudyFeatures() {
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
 
-    activateStudentDayDropdown();
+    renderStudentPanel();
 
-    /*
-      چون پنل ممکن است بعداً دوباره render شود،
-      دوباره event را روی container جدید فعال می‌کنیم.
-    */
-
-    setTimeout(
-        activateStudentDayDropdown,
-        300
-    );
-
-    setTimeout(
-        activateStudentDayDropdown,
-        1000
-    );
-
-}
+    renderDashboard();
 
 
-/* ---------------------------------------------------------
-   شروع
---------------------------------------------------------- */
+    document
+      .querySelectorAll(".tab-btn")
+      .forEach(button => {
 
-if (document.readyState === "loading") {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        initializeNewStudyFeatures
-    );
-
-} else {
-
-    initializeNewStudyFeatures();
-
-}
+        button.addEventListener(
+          "click",
+          () => {
+            switchTab(button.dataset.tab);
+          }
+        );
+      });
 
 
-/*
-  برای استفاده احتمالی توسط کد اصلی
-*/
+    const modalClose =
+      document.getElementById(
+        "modalCloseBtn"
+      );
 
-window.buildAdvisorReportNew =
-    buildAdvisorReportNew;
+    if (modalClose) {
+      modalClose.addEventListener(
+        "click",
+        closeModal
+      );
+    }
 
-window.refreshNewAdvisorReport =
-    refreshNewAdvisorReport;
 
-window.activateStudentDayDropdown =
-    activateStudentDayDropdown;
+    const modal =
+      document.getElementById(
+        "recordModal"
+      );
+
+    if (modal) {
+
+      modal.addEventListener(
+        "click",
+        event => {
+
+          if (
+            event.target.id ===
+            "recordModal"
+          ) {
+            closeModal();
+          }
+        }
+      );
+    }
+
+
+    const exportButton =
+      document.getElementById(
+        "exportPdfBtn"
+      );
+
+    if (exportButton) {
+
+      exportButton.addEventListener(
+        "click",
+        exportAdvisorPdf
+      );
+    }
+
+  }
+);
+
+
+/* ==========================================================================
+   پایان فایل
+   ========================================================================== */
