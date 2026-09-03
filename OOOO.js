@@ -2184,7 +2184,399 @@ document.addEventListener(
 
   }
 );
+/* ==========================================
+   BACKUP & RESTORE DATA
+========================================== */
 
+(function () {
+
+  const BACKUP_VERSION = 1;
+
+  /*
+    کلیدهایی که مربوط به اطلاعات ثبت‌شده کاربر هستند.
+    اگر برنامه شما از localStorage برای ذخیره رکوردها
+    استفاده می‌کند، این کد کل اطلاعات localStorage
+    را به‌صورت امن داخل فایل پشتیبان قرار می‌دهد.
+  */
+
+  function collectBackupData() {
+
+    const data = {};
+
+    for (let i = 0; i < localStorage.length; i++) {
+
+      const key = localStorage.key(i);
+
+      if (!key) continue;
+
+      try {
+
+        const value = localStorage.getItem(key);
+
+        /*
+          اگر مقدار JSON باشد، به‌صورت واقعی ذخیره می‌شود.
+          در غیر این صورت همان متن ذخیره می‌شود.
+        */
+
+        try {
+          data[key] = JSON.parse(value);
+        } catch {
+          data[key] = value;
+        }
+
+      } catch (error) {
+
+        console.warn(
+          "خطا در خواندن:",
+          key,
+          error
+        );
+
+      }
+    }
+
+    return data;
+  }
+
+
+  function createBackup() {
+
+    try {
+
+      const backup = {
+
+        app: "Babaa-ee",
+
+        version: BACKUP_VERSION,
+
+        createdAt:
+          new Date().toISOString(),
+
+        data:
+          collectBackupData()
+
+      };
+
+
+      const json =
+        JSON.stringify(
+          backup,
+          null,
+          2
+        );
+
+
+      const blob =
+        new Blob(
+          [json],
+          {
+            type: "application/json"
+          }
+        );
+
+
+      const url =
+        URL.createObjectURL(blob);
+
+
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+
+      link.download =
+        "پشتیبان-برنامه-مطالعاتی-" +
+        getBackupDate() +
+        ".json";
+
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+
+      URL.revokeObjectURL(url);
+
+
+      alert(
+        "پشتیبان‌گیری با موفقیت انجام شد."
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Backup error:",
+        error
+      );
+
+      alert(
+        "پشتیبان‌گیری انجام نشد."
+      );
+    }
+  }
+
+
+  function getBackupDate() {
+
+    const now =
+      new Date();
+
+    const year =
+      now.getFullYear();
+
+    const month =
+      String(
+        now.getMonth() + 1
+      ).padStart(2, "0");
+
+    const day =
+      String(
+        now.getDate()
+      ).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  }
+
+
+  function restoreBackup(file) {
+
+    if (!file) return;
+
+
+    const reader =
+      new FileReader();
+
+
+    reader.onload =
+      function (event) {
+
+        try {
+
+          const backup =
+            JSON.parse(
+              event.target.result
+            );
+
+
+          /*
+            بررسی اولیه فایل
+          */
+
+          if (
+            !backup ||
+            typeof backup !== "object" ||
+            !backup.data ||
+            typeof backup.data !== "object"
+          ) {
+
+            throw new Error(
+              "Invalid backup"
+            );
+          }
+
+
+          const confirmed =
+            confirm(
+              "با بازیابی این فایل، اطلاعات فعلی ذخیره‌شده جایگزین می‌شوند.\n\nآیا مطمئن هستید؟"
+            );
+
+
+          if (!confirmed) {
+            return;
+          }
+
+
+          /*
+            اطلاعات قبلی localStorage
+            پاک نمی‌شود تا زمانی که
+            فایل معتبر تشخیص داده شود.
+          */
+
+          const data =
+            backup.data;
+
+
+          /*
+            بازیابی اطلاعات
+          */
+
+          Object.keys(data)
+            .forEach(function (key) {
+
+              const value =
+                data[key];
+
+
+              if (
+                typeof value === "string"
+              ) {
+
+                localStorage.setItem(
+                  key,
+                  value
+                );
+
+              } else {
+
+                localStorage.setItem(
+                  key,
+                  JSON.stringify(value)
+                );
+              }
+
+            });
+
+
+          alert(
+            "اطلاعات با موفقیت بازیابی شد.\n\nبرای نمایش کامل اطلاعات، صفحه را دوباره بارگذاری کنید."
+          );
+
+
+          /*
+            بعد از بازیابی
+            صفحه دوباره بارگذاری می‌شود.
+          */
+
+          location.reload();
+
+
+        } catch (error) {
+
+          console.error(
+            "Restore error:",
+            error
+          );
+
+          alert(
+            "فایل انتخاب‌شده معتبر نیست یا آسیب دیده است."
+          );
+
+        }
+
+      };
+
+
+    reader.onerror =
+      function () {
+
+        alert(
+          "خواندن فایل پشتیبان انجام نشد."
+        );
+
+      };
+
+
+    reader.readAsText(
+      file,
+      "UTF-8"
+    );
+  }
+
+
+  /*
+    اتصال دکمه‌ها
+  */
+
+  function initBackupSystem() {
+
+    const backupButton =
+      document.getElementById(
+        "backupDataBtn"
+      );
+
+    const restoreButton =
+      document.getElementById(
+        "restoreDataBtn"
+      );
+
+    const restoreInput =
+      document.getElementById(
+        "restoreDataInput"
+      );
+
+
+    if (!backupButton) {
+      console.warn(
+        "backupDataBtn پیدا نشد."
+      );
+      return;
+    }
+
+
+    if (!restoreButton) {
+      console.warn(
+        "restoreDataBtn پیدا نشد."
+      );
+      return;
+    }
+
+
+    if (!restoreInput) {
+      console.warn(
+        "restoreDataInput پیدا نشد."
+      );
+      return;
+    }
+
+
+    backupButton.addEventListener(
+      "click",
+      createBackup
+    );
+
+
+    restoreButton.addEventListener(
+      "click",
+      function () {
+
+        restoreInput.value = "";
+
+        restoreInput.click();
+
+      }
+    );
+
+
+    restoreInput.addEventListener(
+      "change",
+      function () {
+
+        const file =
+          this.files &&
+          this.files[0];
+
+        if (!file) return;
+
+        restoreBackup(file);
+
+      }
+    );
+
+  }
+
+
+  /*
+    اجرا بعد از آماده شدن صفحه
+  */
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      initBackupSystem
+    );
+
+  } else {
+
+    initBackupSystem();
+
+  }
+
+})();
 
 /* ==========================================================================
    پایان فایل
