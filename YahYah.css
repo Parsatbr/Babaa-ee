@@ -704,3 +704,140 @@ table.pdf-table td:first-child { text-align: right; font-weight: 600; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ================================
+   STUDENT DAY ACCORDION
+================================ */
+
+.day-header {
+    cursor: pointer;
+    user-select: none;
+}
+
+.day-body {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height .35s ease, opacity .25s ease;
+}
+
+.day-body.open {
+    max-height: 5000px;
+    opacity: 1;
+}
+
+.day-header::after {
+    content: "⌄";
+    display: inline-block;
+    margin-right: 10px;
+    transition: transform .25s ease;
+}
+
+.day-header.active::after {
+    transform: rotate(180deg);
+}
+
+
+/* ================================
+   ADVISOR REPORT
+================================ */
+
+.advisor-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.advisor-stat-card {
+    padding: 18px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.10);
+    backdrop-filter: blur(12px);
+}
+
+.advisor-stat-title {
+    font-size: 13px;
+    opacity: .75;
+    margin-bottom: 8px;
+}
+
+.advisor-stat-value {
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.advisor-day-card {
+    margin-bottom: 18px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.09);
+}
+
+.advisor-day-title {
+    padding: 17px;
+    font-size: 17px;
+    font-weight: 900;
+}
+
+.advisor-day-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    padding: 0 17px 15px;
+}
+
+.advisor-chip {
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.07);
+    font-size: 12px;
+}
+
+.advisor-activity {
+    padding: 15px 17px;
+    border-top: 1px solid rgba(255,255,255,.07);
+}
+
+.advisor-activity-title {
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.advisor-activity-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 9px;
+}
+
+.advisor-mini-stat {
+    padding: 10px;
+    border-radius: 11px;
+    background: rgba(255,255,255,.045);
+}
+
+.advisor-mini-label {
+    display: block;
+    font-size: 10px;
+    opacity: .65;
+    margin-bottom: 5px;
+}
+
+.advisor-mini-value {
+    font-size: 12px;
+    font-weight: 800;
+}
+
+@media (max-width: 800px) {
+
+    .advisor-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .advisor-activity-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
