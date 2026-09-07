@@ -559,7 +559,6 @@ function renderStudentPanel() {
 
     header.type = "button";
     header.className = "day-header";
-
     header.setAttribute(
       "aria-expanded",
       openDays.has(dayIndex) ? "true" : "false"
@@ -604,7 +603,6 @@ function renderStudentPanel() {
     }
 
     day.activities.forEach((activity, activityIndex) => {
-
       body.appendChild(
         renderActivityCard(
           day,
@@ -663,11 +661,13 @@ function renderActivityCard(day, dayIndex, activity, activityIndex) {
       </div>
 
       <div class="activity-main">
+
         <span class="meal-icon">🍽️</span>
 
         <span class="activity-title">
           ${activity.title}
         </span>
+
       </div>
     `;
 
@@ -746,6 +746,7 @@ function renderActivityCard(day, dayIndex, activity, activityIndex) {
   card.innerHTML = `
 
     <div class="activity-time">
+
       ${toFaDigits(activity.start)}
       -
       ${toFaDigits(activity.end)}
@@ -753,6 +754,7 @@ function renderActivityCard(day, dayIndex, activity, activityIndex) {
       <span class="planned-min">
         (${formatAdvisorTime(planned)} برنامه)
       </span>
+
     </div>
 
     <div class="activity-main">
@@ -996,50 +998,15 @@ function renderDashboard() {
     <div class="stat-card glass">
 
       <span class="stat-label">
-        تست‌های امروز
+        تعداد تست امروز
       </span>
 
       <span class="stat-value">
         ${toFaDigits(today.tests)}
       </span>
 
-    </div>
-
-
-    <div class="stat-card glass">
-
-      <span class="stat-label">
-        مطالعه کل
-      </span>
-
-      <span class="stat-value">
-        ${formatAdvisorTime(overall.totalStudied)}
-      </span>
-
-    </div>
-
-
-    <div class="stat-card glass">
-
-      <span class="stat-label">
-        برنامه کل
-      </span>
-
-      <span class="stat-value">
-        ${formatAdvisorTime(overall.totalPlanned)}
-      </span>
-
-    </div>
-
-
-    <div class="stat-card glass">
-
-      <span class="stat-label">
-        تست کل
-      </span>
-
-      <span class="stat-value">
-        ${toFaDigits(overall.totalTests)}
+      <span class="stat-foot">
+        تست
       </span>
 
     </div>
@@ -1065,14 +1032,1531 @@ function renderDashboard() {
     <div class="stat-card glass">
 
       <span class="stat-label">
-        پیشرفت کل
+        فعالیت‌های نخوانده
       </span>
 
-      <span class="stat-value ${percentClass(overall.overallPercent)}">
+      <span class="stat-value pct-low">
+        ${toFaDigits(overall.skippedCount)}
+      </span>
+
+      <span class="stat-foot">
+        فعالیت
+      </span>
+
+    </div>
+
+
+    <div class="stat-card glass wide">
+
+      <span class="stat-label">
+        درصد مطالعه کل برنامه
+      </span>
+
+      <div class="progress-bar-track lg">
+
+        <div
+          class="progress-bar-fill ${percentClass(overall.overallPercent)}"
+          style="width:${overall.overallPercent}%"
+        ></div>
+
+      </div>
+
+      <span class="stat-foot">
         ${toFaDigits(overall.overallPercent)}٪
+        از
+        ${formatAdvisorTime(overall.totalPlanned)}
       </span>
 
     </div>
 
   `;
-       }
+}
+
+
+/* ==========================================================================
+   8) گزارش کامل روزانه مشاور
+   ========================================================================== */
+
+function buildDailyAdvisorRows() {
+
+  let rows = "";
+
+  SCHEDULE.forEach((day, dayIndex) => {
+
+    const stats =
+      dailyQuickStats(dayIndex);
+
+    let firstActivity = true;
+
+    day.activities.forEach((activity, activityIndex) => {
+
+      if (activity.type !== "study") return;
+
+      const planned =
+        plannedMinutes(activity);
+
+      const record =
+        getRecord(dayIndex, activityIndex);
+
+      const studied =
+        getStudiedMinutes(record);
+
+      const tests =
+        getTestCount(record);
+
+      const percent =
+        getPercent(studied, planned);
+
+      let status = "ثبت‌نشده";
+
+      if (record?.status === "done") {
+        status = "خواندم";
+      }
+
+      if (record?.status === "skipped") {
+        status = "نخواندم";
+      }
+
+      rows += `
+
+        <tr>
+
+          ${
+            firstActivity
+              ? `
+                <td
+                  rowspan="${day.activities.filter(a => a.type === "study").length}"
+                  class="advisor-day-cell"
+                >
+                  <strong>
+                    ${day.weekday}
+                  </strong>
+
+                  <br>
+
+                  ${toFaDigits(day.date)}
+
+                  <div class="advisor-day-total">
+
+                    برنامه:
+                    ${formatAdvisorTime(stats.planned)}
+
+                    <br>
+
+                    خوانده‌شده:
+                    ${formatAdvisorTime(stats.studied)}
+
+                    <br>
+
+                    تست:
+                    ${toFaDigits(
+                      day.activities.reduce(
+                        (sum, a, ai) => {
+
+                          if (a.type !== "study") {
+                            return sum;
+                          }
+
+                          const r =
+                            getRecord(dayIndex, ai);
+
+                          return sum +
+                            getTestCount(r);
+                        },
+                        0
+                      )
+                    )}
+
+                  </div>
+
+                </td>
+              `
+              : ""
+          }
+
+          <td>
+
+            <div class="advisor-subject">
+              ${activity.subject}
+            </div>
+
+            <div class="advisor-title">
+              ${activity.title}
+            </div>
+
+            <div class="advisor-time">
+              ${toFaDigits(activity.start)}
+              -
+              ${toFaDigits(activity.end)}
+            </div>
+
+          </td>
+
+          <td>
+            ${formatAdvisorTime(planned)}
+          </td>
+
+          <td>
+            ${formatAdvisorTime(studied)}
+          </td>
+
+          <td>
+
+            <span class="table-pct ${percentClass(percent)}">
+              ${toFaDigits(percent)}٪
+            </span>
+
+          </td>
+
+          <td>
+            ${toFaDigits(tests)}
+          </td>
+
+          <td>
+            ${status}
+          </td>
+
+        </tr>
+
+      `;
+
+      firstActivity = false;
+    });
+  });
+
+  return rows;
+}
+
+
+/* ==========================================================================
+   9) گزارش مشاور
+   ========================================================================== */
+
+function renderAdvisorPanel() {
+
+  const overall =
+    computeOverallStats();
+
+  /*
+    چهار شاخص اصلی دقیقاً در بالای گزارش
+  */
+
+  const overallGrid =
+    document.getElementById("advisorOverallGrid");
+
+  if (overallGrid) {
+
+    overallGrid.innerHTML = `
+
+      <div class="advisor-stat-card stat-card glass">
+
+        <div class="advisor-stat-title">
+          مدت زمان برنامه‌ریزی شده
+        </div>
+
+        <div class="advisor-stat-value">
+          ${formatAdvisorTime(overall.totalPlanned)}
+        </div>
+
+      </div>
+
+
+      <div class="advisor-stat-card stat-card glass">
+
+        <div class="advisor-stat-title">
+          مدت زمان خوانده شده
+        </div>
+
+        <div class="advisor-stat-value">
+          ${formatAdvisorTime(overall.totalStudied)}
+        </div>
+
+      </div>
+
+
+      <div class="advisor-stat-card stat-card glass">
+
+        <div class="advisor-stat-title">
+          درصد تکمیل برنامه
+        </div>
+
+        <div class="advisor-stat-value ${percentClass(overall.overallPercent)}">
+          ${toFaDigits(overall.overallPercent)}٪
+        </div>
+
+      </div>
+
+
+      <div class="advisor-stat-card stat-card glass">
+
+        <div class="advisor-stat-title">
+          تعداد تست‌های زده شده
+        </div>
+
+        <div class="advisor-stat-value">
+          ${toFaDigits(overall.totalTests)}
+        </div>
+
+      </div>
+
+    `;
+  }
+
+
+  /*
+    گزارش روزبه‌روز و جزئیات تک‌تک فعالیت‌ها
+  */
+
+  const dailyBody =
+    document.getElementById("dailyReportBody");
+
+  if (dailyBody) {
+
+    dailyBody.innerHTML = buildDailyAdvisorRows();
+  }
+
+
+  /*
+    گزارش درسی تجمیعی
+  */
+
+  const subjectBody =
+    document.getElementById("subjectReportBody");
+
+  if (subjectBody) {
+
+    const subjects = {};
+
+    allStudyActivities().forEach(activity => {
+
+      if (!subjects[activity.subject]) {
+
+        subjects[activity.subject] = {
+          subject: activity.subject,
+          planned: 0,
+          studied: 0,
+          tests: 0,
+          done: 0,
+          skipped: 0,
+          unrecorded: 0
+        };
+      }
+
+      const item =
+        subjects[activity.subject];
+
+      item.planned += activity.planned;
+
+      const record =
+        RECORDS[activity.id];
+
+      if (!record) {
+
+        item.unrecorded++;
+
+      } else if (record.status === "done") {
+
+        item.done++;
+
+        item.studied +=
+          getStudiedMinutes(record);
+
+        item.tests +=
+          getTestCount(record);
+
+      } else if (record.status === "skipped") {
+
+        item.skipped++;
+      }
+    });
+
+
+    subjectBody.innerHTML =
+      Object.values(subjects)
+        .map(subject => {
+
+          const percent =
+            getPercent(
+              subject.studied,
+              subject.planned
+            );
+
+          return `
+
+            <tr>
+
+              <td>
+                ${subject.subject}
+              </td>
+
+              <td>
+                ${formatAdvisorTime(subject.planned)}
+              </td>
+
+              <td>
+                ${formatAdvisorTime(subject.studied)}
+              </td>
+
+              <td>
+
+                <span class="table-pct ${percentClass(percent)}">
+                  ${toFaDigits(percent)}٪
+                </span>
+
+              </td>
+
+              <td>
+                ${toFaDigits(subject.tests)}
+              </td>
+
+              <td>
+                ${toFaDigits(subject.done)}
+              </td>
+
+              <td>
+                ${toFaDigits(subject.skipped)}
+              </td>
+
+            </tr>
+
+          `;
+        })
+        .join("");
+  }
+
+
+  /*
+    اگر HTML پروژه یک کانتینر اختصاصی advisorReport داشته باشد،
+    نسخه‌ی کامل کارت‌های روزانه نیز در آن نمایش داده می‌شود.
+  */
+
+  const advisorReport =
+    document.getElementById("advisorReport");
+
+  if (advisorReport) {
+
+    advisorReport.innerHTML = buildAdvisorCardReport();
+  }
+}
+
+
+/* ==========================================================================
+   10) نسخه کارت‌محور گزارش مشاور
+   ========================================================================== */
+
+function buildAdvisorCardReport() {
+
+  const overall =
+    computeOverallStats();
+
+  let html = `
+
+    <div class="advisor-summary-grid">
+
+      <div class="advisor-stat-card">
+
+        <div class="advisor-stat-title">
+          مدت زمان برنامه‌ریزی شده
+        </div>
+
+        <div class="advisor-stat-value">
+          ${formatAdvisorTime(overall.totalPlanned)}
+        </div>
+
+      </div>
+
+
+      <div class="advisor-stat-card">
+
+        <div class="advisor-stat-title">
+          مدت زمان خوانده شده
+        </div>
+
+        <div class="advisor-stat-value">
+          ${formatAdvisorTime(overall.totalStudied)}
+        </div>
+
+      </div>
+
+
+      <div class="advisor-stat-card">
+
+        <div class="advisor-stat-title">
+          درصد تکمیل برنامه
+        </div>
+
+        <div class="advisor-stat-value">
+          ${toFaDigits(overall.overallPercent)}٪
+        </div>
+
+      </div>
+
+
+      <div class="advisor-stat-card">
+
+        <div class="advisor-stat-title">
+          تعداد تست‌های زده شده
+        </div>
+
+        <div class="advisor-stat-value">
+          ${toFaDigits(overall.totalTests)}
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  SCHEDULE.forEach((day, dayIndex) => {
+
+    let dayPlanned = 0;
+    let dayStudied = 0;
+    let dayTests = 0;
+
+    let activitiesHTML = "";
+
+    day.activities.forEach((activity, activityIndex) => {
+
+      if (activity.type !== "study") return;
+
+      const planned =
+        plannedMinutes(activity);
+
+      const record =
+        getRecord(dayIndex, activityIndex);
+
+      const studied =
+        getStudiedMinutes(record);
+
+      const tests =
+        getTestCount(record);
+
+      const percent =
+        getPercent(studied, planned);
+
+      dayPlanned += planned;
+      dayStudied += studied;
+      dayTests += tests;
+
+      let status = "ثبت‌نشده";
+
+      if (record?.status === "done") {
+        status = "خواندم";
+      } else if (record?.status === "skipped") {
+        status = "نخواندم";
+      }
+
+      activitiesHTML += `
+
+        <div class="advisor-activity">
+
+          <div class="advisor-activity-title">
+
+            📚 ${activity.subject}
+
+            <br>
+
+            <span>
+              ${activity.title}
+            </span>
+
+          </div>
+
+          <div class="advisor-activity-grid">
+
+            <div class="advisor-mini-stat">
+
+              <span class="advisor-mini-label">
+                زمان برنامه‌ریزی‌شده
+              </span>
+
+              <span class="advisor-mini-value">
+                ${formatAdvisorTime(planned)}
+              </span>
+
+            </div>
+
+
+            <div class="advisor-mini-stat">
+
+              <span class="advisor-mini-label">
+                مدت زمان خوانده‌شده
+              </span>
+
+              <span class="advisor-mini-value">
+                ${formatAdvisorTime(studied)}
+              </span>
+
+            </div>
+
+
+            <div class="advisor-mini-stat">
+
+              <span class="advisor-mini-label">
+                درصد تکمیل
+              </span>
+
+              <span class="advisor-mini-value ${percentClass(percent)}">
+                ${toFaDigits(percent)}٪
+              </span>
+
+            </div>
+
+
+            <div class="advisor-mini-stat">
+
+              <span class="advisor-mini-label">
+                تعداد تست
+              </span>
+
+              <span class="advisor-mini-value">
+                ${toFaDigits(tests)}
+              </span>
+
+            </div>
+
+
+            <div class="advisor-mini-stat">
+
+              <span class="advisor-mini-label">
+                ساعت برنامه
+              </span>
+
+              <span class="advisor-mini-value">
+                ${toFaDigits(activity.start)}
+                تا
+                ${toFaDigits(activity.end)}
+              </span>
+
+            </div>
+
+
+            <div class="advisor-mini-stat">
+
+              <span class="advisor-mini-label">
+                وضعیت
+              </span>
+
+              <span class="advisor-mini-value">
+                ${status}
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      `;
+    });
+
+
+    const dayPercent =
+      getPercent(
+        dayStudied,
+        dayPlanned
+      );
+
+
+    html += `
+
+      <div class="advisor-day-card">
+
+        <div class="advisor-day-title">
+
+          ${day.weekday}
+          —
+          ${toFaDigits(day.date)}
+
+        </div>
+
+
+        <div class="advisor-day-summary">
+
+          <div class="advisor-chip">
+            برنامه:
+            ${formatAdvisorTime(dayPlanned)}
+          </div>
+
+          <div class="advisor-chip">
+            خوانده‌شده:
+            ${formatAdvisorTime(dayStudied)}
+          </div>
+
+          <div class="advisor-chip">
+            تکمیل:
+            ${toFaDigits(dayPercent)}٪
+          </div>
+
+          <div class="advisor-chip">
+            تست:
+            ${toFaDigits(dayTests)}
+          </div>
+
+        </div>
+
+
+        ${activitiesHTML}
+
+      </div>
+
+    `;
+  });
+
+  return html;
+}
+
+
+/* ==========================================================================
+   11) جابه‌جایی پنل‌ها
+   ========================================================================== */
+
+function switchTab(tabName) {
+
+  document
+    .querySelectorAll(".tab-btn")
+    .forEach(button => {
+
+      button.classList.toggle(
+        "active",
+        button.dataset.tab === tabName
+      );
+    });
+
+
+  document
+    .querySelectorAll(".panel")
+    .forEach(panel => {
+
+      panel.classList.toggle(
+        "active",
+        panel.id === `panel-${tabName}`
+      );
+    });
+
+
+  if (tabName === "advisor") {
+    renderAdvisorPanel();
+  }
+}
+
+
+/* ==========================================================================
+   12) خروجی PDF
+   ========================================================================== */
+
+async function exportAdvisorPdf() {
+
+  const button =
+    document.getElementById("exportPdfBtn");
+
+  if (!button) return;
+
+  const originalText =
+    button.textContent;
+
+  button.disabled = true;
+  button.textContent =
+    "در حال ساخت PDF...";
+
+  try {
+
+    const overall =
+      computeOverallStats();
+
+    const printRoot =
+      document.getElementById("pdfRenderRoot");
+
+    if (!printRoot) {
+      throw new Error("pdfRenderRoot پیدا نشد.");
+    }
+
+    printRoot.innerHTML = "";
+
+
+    const page1 =
+      document.createElement("div");
+
+    page1.className = "pdf-page";
+
+    page1.innerHTML = `
+
+      <div class="pdf-header">
+
+        <h1>
+          گزارش پیشرفت مطالعاتی
+        </h1>
+
+        <p class="pdf-sub">
+          گزارش مشاور
+        </p>
+
+      </div>
+
+
+      <div class="pdf-stats-grid">
+
+        <div class="pdf-stat">
+
+          <span>
+            مدت زمان برنامه‌ریزی‌شده
+          </span>
+
+          <b>
+            ${formatAdvisorTime(overall.totalPlanned)}
+          </b>
+
+        </div>
+
+
+        <div class="pdf-stat">
+
+          <span>
+            مدت زمان خوانده‌شده
+          </span>
+
+          <b>
+            ${formatAdvisorTime(overall.totalStudied)}
+          </b>
+
+        </div>
+
+
+        <div class="pdf-stat">
+
+          <span>
+            درصد تکمیل برنامه
+          </span>
+
+          <b>
+            ${toFaDigits(overall.overallPercent)}٪
+          </b>
+
+        </div>
+
+
+        <div class="pdf-stat">
+
+          <span>
+            تعداد تست‌های زده‌شده
+          </span>
+
+          <b>
+            ${toFaDigits(overall.totalTests)}
+          </b>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    printRoot.appendChild(page1);
+
+
+    /*
+      برای PDF گزارش روزانه کامل ساخته می‌شود.
+    */
+
+    SCHEDULE.forEach((day, dayIndex) => {
+
+      const page =
+        document.createElement("div");
+
+      page.className = "pdf-page";
+
+      let rows = "";
+
+      day.activities.forEach(
+        (activity, activityIndex) => {
+
+          if (activity.type !== "study") return;
+
+          const planned =
+            plannedMinutes(activity);
+
+          const record =
+            getRecord(
+              dayIndex,
+              activityIndex
+            );
+
+          const studied =
+            getStudiedMinutes(record);
+
+          const tests =
+            getTestCount(record);
+
+          const percent =
+            getPercent(
+              studied,
+              planned
+            );
+
+          rows += `
+
+            <tr>
+
+              <td>
+                ${activity.subject}
+                <br>
+                ${activity.title}
+              </td>
+
+              <td>
+                ${formatAdvisorTime(planned)}
+              </td>
+
+              <td>
+                ${formatAdvisorTime(studied)}
+              </td>
+
+              <td>
+                ${toFaDigits(percent)}٪
+              </td>
+
+              <td>
+                ${toFaDigits(tests)}
+              </td>
+
+            </tr>
+
+          `;
+        }
+      );
+
+
+      page.innerHTML = `
+
+        <h2 class="pdf-section-title">
+
+          ${day.weekday}
+          —
+          ${toFaDigits(day.date)}
+
+        </h2>
+
+        <table class="pdf-table">
+
+          <thead>
+
+            <tr>
+
+              <th>
+                درس / فعالیت
+              </th>
+
+              <th>
+                برنامه
+              </th>
+
+              <th>
+                مطالعه
+              </th>
+
+              <th>
+                درصد
+              </th>
+
+              <th>
+                تست
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+            ${rows}
+          </tbody>
+
+        </table>
+
+      `;
+
+      printRoot.appendChild(page);
+    });
+
+
+    if (
+      typeof html2canvas === "undefined" ||
+      typeof window.jspdf === "undefined"
+    ) {
+
+      alert(
+        "برای ساخت PDF نیاز به بارگذاری کتابخانه PDF است."
+      );
+
+      return;
+    }
+
+
+    const { jsPDF } =
+      window.jspdf;
+
+    const pdf =
+      new jsPDF({
+        orientation: "portrait",
+        unit: "pt",
+        format: "a4"
+      });
+
+
+    const pageWidth =
+      pdf.internal.pageSize.getWidth();
+
+    const pageHeight =
+      pdf.internal.pageSize.getHeight();
+
+
+    const pages =
+      printRoot.querySelectorAll(".pdf-page");
+
+
+    for (
+      let index = 0;
+      index < pages.length;
+      index++
+    ) {
+
+      const canvas =
+        await html2canvas(
+          pages[index],
+          {
+            scale: 0.6,
+            backgroundColor: "#0b0e17"
+          }
+        );
+
+
+      const image =
+        canvas.toDataURL("image/jpeg",0.55);
+
+
+      const imageHeight =
+        (canvas.height * pageWidth) /
+        canvas.width;
+
+
+      if (index > 0) {
+        pdf.addPage();
+      }
+
+
+      pdf.addImage(
+        image,
+        "JPEG",
+        0,
+        0,
+        pageWidth,
+        Math.min(
+          imageHeight,
+          pageHeight
+        )
+      );
+    }
+
+
+    pdf.save(
+      "گزارش-برنامه-مطالعاتی.pdf"
+    );
+
+
+    printRoot.innerHTML = "";
+
+  } catch (error) {
+
+    console.error(
+      "خطا در ساخت PDF:",
+      error
+    );
+
+    alert(
+      "متأسفانه ساخت PDF با خطا مواجه شد."
+    );
+
+  } finally {
+
+    button.disabled = false;
+    button.textContent =
+      originalText;
+  }
+}
+
+
+/* ==========================================================================
+   13) راه‌اندازی
+   ========================================================================== */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    renderStudentPanel();
+
+    renderDashboard();
+
+
+    document
+      .querySelectorAll(".tab-btn")
+      .forEach(button => {
+
+        button.addEventListener(
+          "click",
+          () => {
+            switchTab(button.dataset.tab);
+          }
+        );
+      });
+
+
+    const modalClose =
+      document.getElementById(
+        "modalCloseBtn"
+      );
+
+    if (modalClose) {
+      modalClose.addEventListener(
+        "click",
+        closeModal
+      );
+    }
+
+
+    const modal =
+      document.getElementById(
+        "recordModal"
+      );
+
+    if (modal) {
+
+      modal.addEventListener(
+        "click",
+        event => {
+
+          if (
+            event.target.id ===
+            "recordModal"
+          ) {
+            closeModal();
+          }
+        }
+      );
+    }
+
+
+    const exportButton =
+      document.getElementById(
+        "exportPdfBtn"
+      );
+
+    if (exportButton) {
+
+      exportButton.addEventListener(
+        "click",
+        exportAdvisorPdf
+      );
+    }
+
+  }
+);
+/* ==========================================
+   BACKUP & RESTORE DATA
+========================================== */
+
+(function () {
+
+  const BACKUP_VERSION = 1;
+
+  /*
+    کلیدهایی که مربوط به اطلاعات ثبت‌شده کاربر هستند.
+    اگر برنامه شما از localStorage برای ذخیره رکوردها
+    استفاده می‌کند، این کد کل اطلاعات localStorage
+    را به‌صورت امن داخل فایل پشتیبان قرار می‌دهد.
+  */
+
+  function collectBackupData() {
+
+    const data = {};
+
+    for (let i = 0; i < localStorage.length; i++) {
+
+      const key = localStorage.key(i);
+
+      if (!key) continue;
+
+      try {
+
+        const value = localStorage.getItem(key);
+
+        /*
+          اگر مقدار JSON باشد، به‌صورت واقعی ذخیره می‌شود.
+          در غیر این صورت همان متن ذخیره می‌شود.
+        */
+
+        try {
+          data[key] = JSON.parse(value);
+        } catch {
+          data[key] = value;
+        }
+
+      } catch (error) {
+
+        console.warn(
+          "خطا در خواندن:",
+          key,
+          error
+        );
+
+      }
+    }
+
+    return data;
+  }
+
+
+  function createBackup() {
+
+    try {
+
+      const backup = {
+
+        app: "Babaa-ee",
+
+        version: BACKUP_VERSION,
+
+        createdAt:
+          new Date().toISOString(),
+
+        data:
+          collectBackupData()
+
+      };
+
+
+      const json =
+        JSON.stringify(
+          backup,
+          null,
+          2
+        );
+
+
+      const blob =
+        new Blob(
+          [json],
+          {
+            type: "application/json"
+          }
+        );
+
+
+      const url =
+        URL.createObjectURL(blob);
+
+
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+
+      link.download =
+        "پشتیبان-برنامه-مطالعاتی-" +
+        getBackupDate() +
+        ".json";
+
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+
+      URL.revokeObjectURL(url);
+
+
+      alert(
+        "پشتیبان‌گیری با موفقیت انجام شد."
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Backup error:",
+        error
+      );
+
+      alert(
+        "پشتیبان‌گیری انجام نشد."
+      );
+    }
+  }
+
+
+  function getBackupDate() {
+
+    const now =
+      new Date();
+
+    const year =
+      now.getFullYear();
+
+    const month =
+      String(
+        now.getMonth() + 1
+      ).padStart(2, "0");
+
+    const day =
+      String(
+        now.getDate()
+      ).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  }
+
+
+  function restoreBackup(file) {
+
+    if (!file) return;
+
+
+    const reader =
+      new FileReader();
+
+
+    reader.onload =
+      function (event) {
+
+        try {
+
+          const backup =
+            JSON.parse(
+              event.target.result
+            );
+
+
+          /*
+            بررسی اولیه فایل
+          */
+
+          if (
+            !backup ||
+            typeof backup !== "object" ||
+            !backup.data ||
+            typeof backup.data !== "object"
+          ) {
+
+            throw new Error(
+              "Invalid backup"
+            );
+          }
+
+
+          const confirmed =
+            confirm(
+              "با بازیابی این فایل، اطلاعات فعلی ذخیره‌شده جایگزین می‌شوند.\n\nآیا مطمئن هستید؟"
+            );
+
+
+          if (!confirmed) {
+            return;
+          }
+
+
+          /*
+            اطلاعات قبلی localStorage
+            پاک نمی‌شود تا زمانی که
+            فایل معتبر تشخیص داده شود.
+          */
+
+          const data =
+            backup.data;
+
+
+          /*
+            بازیابی اطلاعات
+          */
+
+          Object.keys(data)
+            .forEach(function (key) {
+
+              const value =
+                data[key];
+
+
+              if (
+                typeof value === "string"
+              ) {
+
+                localStorage.setItem(
+                  key,
+                  value
+                );
+
+              } else {
+
+                localStorage.setItem(
+                  key,
+                  JSON.stringify(value)
+                );
+              }
+
+            });
+
+
+          alert(
+            "اطلاعات با موفقیت بازیابی شد.\n\nبرای نمایش کامل اطلاعات، صفحه را دوباره بارگذاری کنید."
+          );
+
+
+          /*
+            بعد از بازیابی
+            صفحه دوباره بارگذاری می‌شود.
+          */
+
+          location.reload();
+
+
+        } catch (error) {
+
+          console.error(
+            "Restore error:",
+            error
+          );
+
+          alert(
+            "فایل انتخاب‌شده معتبر نیست یا آسیب دیده است."
+          );
+
+        }
+
+      };
+
+
+    reader.onerror =
+      function () {
+
+        alert(
+          "خواندن فایل پشتیبان انجام نشد."
+        );
+
+      };
+
+
+    reader.readAsText(
+      file,
+      "UTF-8"
+    );
+  }
+
+
+  /*
+    اتصال دکمه‌ها
+  */
+
+  function initBackupSystem() {
+
+    const backupButton =
+      document.getElementById(
+        "backupDataBtn"
+      );
+
+    const restoreButton =
+      document.getElementById(
+        "restoreDataBtn"
+      );
+
+    const restoreInput =
+      document.getElementById(
+        "restoreDataInput"
+      );
+
+
+    if (!backupButton) {
+      console.warn(
+        "backupDataBtn پیدا نشد."
+      );
+      return;
+    }
+
+
+    if (!restoreButton) {
+      console.warn(
+        "restoreDataBtn پیدا نشد."
+      );
+      return;
+    }
+
+
+    if (!restoreInput) {
+      console.warn(
+        "restoreDataInput پیدا نشد."
+      );
+      return;
+    }
+
+
+    backupButton.addEventListener(
+      "click",
+      createBackup
+    );
+
+
+    restoreButton.addEventListener(
+      "click",
+      function () {
+
+        restoreInput.value = "";
+
+        restoreInput.click();
+
+      }
+    );
+
+
+    restoreInput.addEventListener(
+      "change",
+      function () {
+
+        const file =
+          this.files &&
+          this.files[0];
+
+        if (!file) return;
+
+        restoreBackup(file);
+
+      }
+    );
+
+  }
+
+
+  /*
+    اجرا بعد از آماده شدن صفحه
+  */
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      initBackupSystem
+    );
+
+  } else {
+
+    initBackupSystem();
+
+  }
+
+})();
+
+/* ==========================================================================
+   پایان فایل
+   ========================================================================== */
